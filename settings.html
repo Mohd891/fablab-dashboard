@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fablab Dashboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-page="settings">
+<div class="dashboard">
+<aside class="sidebar">
+  <div class="logo"><div class="logo-icon">⚙</div><div><h2>Fablab</h2><span>Dashboard</span></div></div>
+  <nav class="navigation">
+    <a href="index.html" class="nav-item" data-page="home"><span>⌂</span><span>الرئيسية</span></a>
+    <a href="programs.html" class="nav-item" data-page="programs"><span>▣</span><span>البرامج</span></a>
+    <a href="students.html" class="nav-item" data-page="students"><span>♙</span><span>الطلاب</span></a>
+    <a href="attendance.html" class="nav-item" data-page="attendance"><span>✓</span><span>الحضور</span></a>
+    <a href="volunteers.html" class="nav-item" data-page="volunteers"><span>♧</span><span>المتطوعين</span></a>
+    <a href="trainers.html" class="nav-item" data-page="trainers"><span>♙</span><span>المدربين</span></a>
+    <a href="reports.html" class="nav-item" data-page="reports"><span>▤</span><span>التقارير</span></a>
+  </nav>
+  <div class="sidebar-bottom"><a href="settings.html" class="nav-item" data-page="settings"><span>⚙</span><span>الإعدادات</span></a></div>
+</aside>
+<main class="main-content">
+<header class="header">
+  <div><h1>مرحباً بك 👋</h1><p>نظرة عامة على أنشطة فاب لاب</p></div>
+  <div class="header-actions"><button class="notification" id="notificationBtn">🔔</button><div class="user"><div class="avatar">م</div><div><strong>محمد</strong><small>مساعد إداري</small></div></div></div>
+</header>
+<section class="page active-page" id="page-settings"><div class="page-title"><div><h2>الإعدادات</h2><p>إعدادات النظام</p></div></div><div class="card"><h3>قاعدة البيانات</h3><p>الاتصال الحالي: <strong>fablab_db</strong> عبر XAMPP / MySQL.</p><p>تسجيل الطلاب والبرامج والحضور والمتطوعين والمدربين يتم من الموقع مباشرة، ولا تحتاج إدخالهم يدوياً في phpMyAdmin.</p></div></section>
+</main></div>
+<div class="modal" id="modal"><div class="modal-box"><button class="modal-close" id="modalClose">×</button><h2 id="modalTitle">إضافة</h2><form id="modalForm"></form></div></div>
+<div class="toast" id="toast"></div>
+<script src="script.js"></script>
+</body></html>
