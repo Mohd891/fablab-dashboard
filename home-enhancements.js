@@ -23,7 +23,11 @@ document.addEventListener('DOMContentLoaded',function(){
     if(badge){
       badge.innerHTML='<b>محمد الرمضان</b><span>مصمم ومطور الموقع</span><a class="author-phone" href="https://wa.me/966566552942" target="_blank" rel="noopener">0566552942</a>';
     }
+    var meta=author.querySelector('.author-meta');
+    if(meta) meta.remove();
   }
+  var roles=document.querySelector('.roles-band');
+  if(roles) roles.remove();
   if(grid && !document.querySelector('.game-promo')){
     var game=document.createElement('section');
     game.className='game-promo';
