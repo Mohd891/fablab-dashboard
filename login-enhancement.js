@@ -10,17 +10,15 @@ window.addEventListener('load',function(){
     document.body.appendChild(toastEl);
   }
 
-  // تنسيق رسالة الخطأ في منتصف الصفحة بحجم أوضح.
-  toastEl.style.left='50%';
-  toastEl.style.bottom='50%';
-  toastEl.style.transform='translate(-50%,50%) scale(.96)';
-  toastEl.style.padding='18px 28px';
-  toastEl.style.fontSize='16px';
-  toastEl.style.fontWeight='700';
-  toastEl.style.borderRadius='14px';
-  toastEl.style.textAlign='center';
-  toastEl.style.minWidth='320px';
-  toastEl.style.maxWidth='90vw';
+  function showLoginError(message,focusInput){
+    toastEl.textContent=message;
+    toastEl.className='toast show error';
+    if(focusInput)focusInput.focus();
+    clearTimeout(window.__loginToastTimer);
+    window.__loginToastTimer=setTimeout(function(){
+      toastEl.className='toast';
+    },3000);
+  }
 
   form.addEventListener('submit',function(e){
     var emailInput=form.querySelector('[name="email"]');
@@ -38,20 +36,12 @@ window.addEventListener('load',function(){
     e.stopImmediatePropagation();
 
     if(!account){
-      toastEl.textContent='هذا البريد الإلكتروني غير مسجل. أنشئ حساب طالب أولًا.';
-      toastEl.className='toast show error';
-      toastEl.style.transform='translate(-50%,50%) scale(1)';
-      setTimeout(function(){toastEl.className='toast';toastEl.style.transform='translate(-50%,50%) scale(.96)';},3000);
-      if(emailInput)emailInput.focus();
+      showLoginError('هذا البريد الإلكتروني غير مسجل. أنشئ حساب طالب أولًا.',emailInput);
       return;
     }
 
     if(account.password!==password||!account.active){
-      toastEl.textContent='البريد الإلكتروني أو كلمة المرور غير صحيحة.';
-      toastEl.className='toast show error';
-      toastEl.style.transform='translate(-50%,50%) scale(1)';
-      setTimeout(function(){toastEl.className='toast';toastEl.style.transform='translate(-50%,50%) scale(.96)';},3000);
-      if(passwordInput)passwordInput.focus();
+      showLoginError('البريد الإلكتروني أو كلمة المرور غير صحيحة.',passwordInput);
       return;
     }
 
