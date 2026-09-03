@@ -39,20 +39,10 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&l
 function toast(msg,type='ok'){const t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.className='toast',2400)}
 function currentPage(){return document.body.dataset.page||''}
 function guard(roles=[]){const u=user();if(!u){location.href='login.html';return null}if(roles.length&&!roles.includes(u.role)){location.href='portal.html';return null}return u}
-function counts(db){
- return {students:db.students.length,programs:db.programs.filter(p=>p.status==='active').length,employees:db.users.filter(u=>u.role==='employee').length,volunteers:db.volunteers.length,trainers:db.trainers.length};
-}
-function updateGlobalHeader(){
- const u=user();document.querySelectorAll('[data-user-name]').forEach(el=>el.textContent=u?.name||'')
- document.querySelectorAll('[data-user-role]').forEach(el=>el.textContent=u?roleLabel(u.role):'')
-}
-function publicNav(active){
- return `<header class="site-nav"><a class="brand" href="index.html"><img src="assets/fablab-logo.png" alt="Fablab"><span>فاب لاب الأحساء</span></a><nav><a class="${active==='home'?'active':''}" href="index.html">الرئيسية</a><a class="${active==='programs'?'active':''}" href="programs.html">البرامج</a><a class="${active==='about'?'active':''}" href="about.html">عن فاب لاب</a><a class="${active==='contact'?'active':''}" href="contact.html">تواصل معنا</a></nav><div class="nav-actions"><a class="btn light" href="login.html">تسجيل الدخول</a><a class="btn primary" href="register.html">إنشاء حساب طالب</a></div></header>`
-}
-function shell(inner,active,title='Fablab'){
- document.title=title;
- return `${publicNav(active)}<main>${inner}</main><footer class="site-footer"><span>© 2026 Fablab Al-Ahsa</span><span>تصميم وتطوير الموقع: محمد الرمضن</span><a href="contact.html">تواصل معنا</a></footer><div id="toast" class="toast"></div>`
-}
+function counts(db){return {students:db.students.length,programs:db.programs.filter(p=>p.status==='active').length,employees:db.users.filter(u=>u.role==='employee').length,volunteers:db.volunteers.length,trainers:db.trainers.length}}
+function updateGlobalHeader(){const u=user();document.querySelectorAll('[data-user-name]').forEach(el=>el.textContent=u?.name||'');document.querySelectorAll('[data-user-role]').forEach(el=>el.textContent=u?roleLabel(u.role):'')}
+function publicNav(active){return `<header class="site-nav"><a class="brand" href="index.html"><img src="assets/fablab-logo.png" alt="Fablab"><span>فاب لاب الأحساء</span></a><nav><a class="${active==='home'?'active':''}" href="index.html">الرئيسية</a><a class="${active==='programs'?'active':''}" href="programs.html">البرامج</a><a class="${active==='about'?'active':''}" href="about.html">عن فاب لاب</a><a class="${active==='contact'?'active':''}" href="contact.html">تواصل معنا</a></nav><div class="nav-actions"><a class="btn light" href="login.html">تسجيل الدخول</a><a class="btn primary" href="register.html">إنشاء حساب طالب</a></div></header>`}
+function shell(inner,active,title='Fablab'){document.title=title;return `${publicNav(active)}<main>${inner}</main><footer class="site-footer"><span>© 2026 Fablab Al-Ahsa</span><span>تصميم وتطوير الموقع: محمد الرمضان</span><a href="contact.html">تواصل معنا</a></footer><div id="toast" class="toast"></div>`}
 function write(html){document.body.innerHTML=html;updateGlobalHeader()}
 function logActivity(db,activity,actor,meta=''){db.activities.unshift({id:Date.now(),activity,actor,meta,time:new Date().toISOString()});db.activities=db.activities.slice(0,30);saveDB(db)}
 
@@ -61,7 +51,7 @@ function renderPublicHome(){
  const cards=db.programs.filter(p=>p.status==='active').slice(0,6).map(p=>`<article class="program-card"><div class="icon">✦</div><span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p><a href="programs.html#p${p.id}">التفاصيل</a></article>`).join('');
  const hero=`<section class="hero"><div class="hero-copy"><span class="eyebrow">FAB LAB AL-AHSA</span><h1>مكان تتحول فيه<br><span>الأفكار إلى نماذج.</span></h1><p>منصة فاب لاب تجمع التعلم العملي، التصنيع الرقمي، الروبوتات والإلكترونيات في تجربة واحدة.</p><div class="hero-actions"><a class="btn primary large" href="programs.html">استكشف البرامج</a><a class="btn outline large" href="register.html">سجل كطالب</a></div><div class="hero-badges"><span>✦ مشاريع عملية</span><span>✦ تعلم بالممارسة</span><span>✦ مجتمع مبتكر</span></div></div><div class="hero-art"><div class="orb"></div><img src="assets/fablab-logo-wide.png" alt="Fablab"><div class="floating-card one">🤖 روبوتات</div><div class="floating-card two">⚡ إلكترونيات</div><div class="floating-card three">🧩 تصنيع رقمي</div></div></section>`;
  const section=`<section class="section"><div class="section-head"><div><span class="eyebrow">PROGRAMS</span><h2>اكتشف برامجنا</h2></div><a class="text-link" href="programs.html">عرض جميع البرامج ←</a></div><div class="program-grid">${cards}</div></section>`;
- const author=`<section class="author-credit"><div class="author-mark">⌁</div><div class="author-copy"><span class="eyebrow">PROJECT CREDITS</span><h2>تصميم وتطوير الموقع</h2><p>تم تصميم وتطوير هذا الموقع بواسطة <strong>محمد الرمضن</strong> ضمن مشروع التدريب في فاب لاب الأحساء.</p><div class="author-meta"><span>تجربة رقمية متكاملة</span><span>2026</span></div></div><div class="author-badge"><b>محمد الرمضن</b><span>مصمم ومطور الموقع</span></div></section>`;
+ const author=`<section class="author-credit"><div class="author-mark">⌁</div><div class="author-copy"><span class="eyebrow">PROJECT CREDITS</span><h2>تصميم وتطوير الموقع</h2><p>تم تصميم وتطوير هذا الموقع بواسطة <strong>محمد الرمضان</strong> ضمن مشروع التدريب في فاب لاب الأحساء.</p><div class="author-meta"><span>تجربة رقمية متكاملة</span><span>2026</span></div></div><div class="author-badge"><b>محمد الرمضان</b><span>مصمم ومطور الموقع</span></div></section>`;
  const roles=`<section class="roles-band"><div><span class="eyebrow">ONE PLATFORM</span><h2>تجربة رقمية متكاملة</h2><p>الزائر يتصفح، الطالب يتابع تجربته، الموظف يدير التشغيل، والمدير يملك أدوات الإدارة.</p></div><div class="role-grid"><div><b>طالب</b><span>بوابة شخصية</span></div><div><b>موظف</b><span>تشغيل ومتابعة</span></div><div><b>مدير</b><span>إدارة كاملة</span></div></div></section>`;
  write(shell(hero+section+author+roles,'home','الرئيسية | فاب لاب'));
 }
@@ -87,31 +77,6 @@ function renderPeople(){const u=guard(['admin']);if(!u)return;const d=loadDB();c
 function renderAdminReports(){const u=guard(['admin']);if(!u)return;const d=loadDB(),c=counts(d);document.body.innerHTML=portalShell(`<div class="kpi-grid"><div class="kpi"><span>إجمالي الطلاب</span><strong>${c.students}</strong></div><div class="kpi"><span>البرامج النشطة</span><strong>${c.programs}</strong></div><div class="kpi"><span>الموظفون</span><strong>${c.employees}</strong></div><div class="kpi"><span>سجلات الحضور</span><strong>${d.attendance.length}</strong></div></div><section class="portal-card"><h2>ملخص البرامج</h2><div class="table-wrap"><table><thead><tr><th>البرنامج</th><th>المسجلون</th><th>السعة</th><th>المتاح</th></tr></thead><tbody>${d.programs.map(p=>{const n=d.students.filter(s=>s.programId===p.id).length;return `<tr><td>${esc(p.name)}</td><td>${n}</td><td>${p.max}</td><td>${Math.max(0,p.max-n)}</td></tr>`}).join('')}</tbody></table></div></section>`,'التقارير','admin');setupLogout()}
 function renderAdminSettings(){const u=guard(['admin']);if(!u)return;document.body.innerHTML=portalShell(`<section class="portal-card"><h2>إعدادات المدير</h2><form id="adminSettings"><div class="form-row"><label>الاسم<input name="name" value="${esc(u.name)}" required></label><label>البريد الإلكتروني<input type="email" name="email" value="${esc(u.email)}" required></label></div><label>كلمة المرور الجديدة<input type="password" name="password" placeholder="اتركها فارغة للإبقاء على الحالية"></label><button class="btn primary">حفظ</button></form></section>`,'إعدادات المدير','admin');document.getElementById('adminSettings').addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(e.currentTarget),d=loadDB(),i=d.users.findIndex(x=>x.id===u.id),email=String(fd.get('email')).trim().toLowerCase();if(d.users.some(x=>x.id!==u.id&&x.email.toLowerCase()===email)){toast('البريد مستخدم من حساب آخر','error');return}d.users[i].name=String(fd.get('name')).trim();d.users[i].email=email;if(String(fd.get('password')).trim())d.users[i].password=String(fd.get('password'));saveDB(d);setSession(d.users[i]);toast('تم حفظ التغييرات');setTimeout(()=>location.reload(),300)});setupLogout()}
 function renderEmployeeSettings(){const u=guard(['employee']);if(!u)return;document.body.innerHTML=portalShell(`<section class="portal-card"><h2>إعدادات الحساب</h2><form id="empSettings"><div class="form-row"><label>الاسم<input name="name" value="${esc(u.name)}" required></label><label>البريد الإلكتروني<input type="email" name="email" value="${esc(u.email)}" required></label></div><label>كلمة المرور الجديدة<input type="password" name="password" placeholder="اتركها فارغة للإبقاء على الحالية"></label><button class="btn primary">حفظ التغييرات</button></form></section>`,'إعدادات الموظف','employee');document.getElementById('empSettings').addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(e.currentTarget),d=loadDB(),i=d.users.findIndex(x=>x.id===u.id),email=String(fd.get('email')).trim().toLowerCase();if(d.users.some(x=>x.id!==u.id&&x.email.toLowerCase()===email)){toast('البريد مستخدم من حساب آخر','error');return}d.users[i].name=String(fd.get('name')).trim();d.users[i].email=email;if(String(fd.get('password')).trim())d.users[i].password=String(fd.get('password'));saveDB(d);setSession(d.users[i]);toast('تم حفظ التغييرات');setTimeout(()=>location.reload(),300)});setupLogout()}
-
 function renderPortal(){const u=user();if(!u){location.href='login.html';return}if(u.role==='admin')renderAdmin();else if(u.role==='employee')renderEmployee();else renderStudent()}
-function render(){switch(currentPage()){
- case 'home':renderPublicHome();break;
- case 'programs':renderPrograms();break;
- case 'about':renderAbout();break;
- case 'contact':renderContact();break;
- case 'login':renderLogin();break;
- case 'register':renderRegister();break;
- case 'portal':renderPortal();break;
- case 'admin':renderAdmin();break;
- case 'admin-students':renderAdminStudents();break;
- case 'admin-programs':renderAdminPrograms();break;
- case 'admin-attendance':renderAdminAttendance();break;
- case 'admin-people':renderPeople();break;
- case 'admin-users':renderAdminUsers();break;
- case 'admin-reports':renderAdminReports();break;
- case 'admin-settings':renderAdminSettings();break;
- case 'employee':renderEmployee();break;
- case 'employee-students':renderAdminStudents();break;
- case 'employee-attendance':renderAdminAttendance();break;
- case 'employee-settings':renderEmployeeSettings();break;
- case 'student':renderStudent();break;
- case 'student-attendance':renderStudentAttendance();break;
- case 'student-settings':renderStudentSettings();break;
- default:renderPublicHome();
-}}
+function render(){switch(currentPage()){case 'home':renderPublicHome();break;case 'programs':renderPrograms();break;case 'about':renderAbout();break;case 'contact':renderContact();break;case 'login':renderLogin();break;case 'register':renderRegister();break;case 'portal':renderPortal();break;case 'admin':renderAdmin();break;case 'admin-students':renderAdminStudents();break;case 'admin-programs':renderAdminPrograms();break;case 'admin-attendance':renderAdminAttendance();break;case 'admin-people':renderPeople();break;case 'admin-users':renderAdminUsers();break;case 'admin-reports':renderAdminReports();break;case 'admin-settings':renderAdminSettings();break;case 'employee':renderEmployee();break;case 'employee-students':renderAdminStudents();break;case 'employee-attendance':renderAdminAttendance();break;case 'employee-settings':renderEmployeeSettings();break;case 'student':renderStudent();break;case 'student-attendance':renderStudentAttendance();break;case 'student-settings':renderStudentSettings();break;default:renderPublicHome()}}
 document.addEventListener('DOMContentLoaded',render);
