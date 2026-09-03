@@ -108,6 +108,8 @@ function write(html,active,title){
 }
 
 function renderPublicHome(){
+  const db=loadDB();
+
   const hero=`
     <section class="hero">
       <div class="hero-copy">
@@ -140,7 +142,7 @@ function renderPublicHome(){
       </div>
 
       <div class="program-grid">
-        ${loadDB().programs.map(p=>`
+        ${db.programs.map(p=>`
           <article class="program-card">
             <span class="tag">${esc(p.category)}</span>
             <h3>${esc(p.name)}</h3>
@@ -158,14 +160,50 @@ function renderPublicHome(){
         <div class="author-meta">
           <strong>محمد الرمضان</strong>
           <span>مساعد إداري ومالي</span>
+          <span>تجربة رقمية متكاملة</span>
           <span>2026</span>
         </div>
       </div>
     </section>
   `;
 
+  const roles=`
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">DIGITAL EXPERIENCE</span>
+          <h2>تجربة رقمية متكاملة</h2>
+          <p>
+            منصة موحدة لإدارة البرامج والطلاب والموظفين
+            ومتابعة العمليات داخل فاب لاب الأحساء.
+          </p>
+        </div>
+      </div>
+
+      <div class="roles-grid">
+        <a class="role-card" href="register.html">
+          <span class="role-icon">🎓</span>
+          <strong>طالب</strong>
+          <span>إنشاء حساب ومتابعة البرامج</span>
+        </a>
+
+        <a class="role-card" href="login.html">
+          <span class="role-icon">👨‍💼</span>
+          <strong>موظف</strong>
+          <span>الدخول إلى لوحة الموظف</span>
+        </a>
+
+        <a class="role-card" href="login.html">
+          <span class="role-icon">⚙️</span>
+          <strong>مدير</strong>
+          <span>إدارة المنصة والبيانات</span>
+        </a>
+      </div>
+    </section>
+  `;
+
   write(
-    shell(hero+section+author,'home','فاب لاب الأحساء | الرئيسية'),
+    shell(hero+section+author+roles,'home','فاب لاب الأحساء | الرئيسية'),
     'home',
     'فاب لاب الأحساء | الرئيسية'
   );
@@ -183,6 +221,8 @@ function renderPrograms(){
         <h2>${esc(p.name)}</h2>
         <p>${esc(p.description)}</p>
       </div>
+
+      <a class="btn primary" href="register.html">سجل في البرنامج</a>
     </article>
   `).join('');
 
@@ -248,6 +288,7 @@ function renderLogin(){
       const password=String(fd.get('password')||'');
 
       const db=loadDB();
+
       const user=db.users.find(
         u=>String(u.email).toLowerCase()===email &&
            u.password===password &&
@@ -280,15 +321,17 @@ function renderLogin(){
 }
 
 function renderRegister(){
+  const db=loadDB();
+
   write(
     shell(`
       <section class="auth-wrap">
         <div class="auth-card">
           <span class="eyebrow">STUDENT REGISTRATION</span>
           <h1>إنشاء حساب طالب</h1>
-          <p>أنشئ حسابك أولًا، ويمكنك متابعة البرامج المتاحة بعد تسجيل الدخول.</p>
 
           <form id="registerForm">
+
             <label>
               الاسم الكامل
               <input type="text" name="name" required>
@@ -309,7 +352,19 @@ function renderRegister(){
               <input type="password" name="password2" required minlength="6">
             </label>
 
-            <button class="btn primary" type="submit">إنشاء الحساب</button>
+            <label>
+              البرنامج
+              <select name="program_id" required>
+                <option value="">اختر البرنامج</option>
+                ${db.programs.map(p=>`
+                  <option value="${p.id}">${esc(p.name)}</option>
+                `).join('')}
+              </select>
+            </label>
+
+            <button class="btn primary" type="submit">
+              إنشاء الحساب
+            </button>
 
             <div id="registerMsg"></div>
           </form>
@@ -332,14 +387,16 @@ function renderRegister(){
       const email=String(fd.get('email')||'').trim().toLowerCase();
       const password=String(fd.get('password')||'');
       const password2=String(fd.get('password2')||'');
+      const program_id=Number(fd.get('program_id'));
 
       const msg=document.getElementById('registerMsg');
-      const db=loadDB();
 
       if(password!==password2){
         msg.innerHTML='<div class="alert error">كلمتا المرور غير متطابقتين.</div>';
         return;
       }
+
+      const db=loadDB();
 
       if(db.users.some(u=>String(u.email).toLowerCase()===email)){
         msg.innerHTML='<div class="alert error">البريد الإلكتروني مستخدم مسبقًا.</div>';
@@ -348,22 +405,21 @@ function renderRegister(){
 
       const id=Date.now();
 
-      const user={
+      db.users.push({
         id,
         name,
         email,
         password,
         role:'student',
         status:'active'
-      };
-
-      db.users.push(user);
+      });
 
       db.students.push({
         id,
         user_id:id,
         name,
         email,
+        program_id,
         created_at:new Date().toISOString()
       });
 
@@ -387,7 +443,10 @@ function renderAbout(){
       <section class="page-head">
         <span class="eyebrow">ABOUT</span>
         <h1>عن فاب لاب الأحساء</h1>
-        <p>بيئة تعليمية وصناعية تساعد المبتكرين على تحويل الأفكار إلى نماذج ومشاريع واقعية.</p>
+        <p>
+          بيئة تعليمية وصناعية تساعد المبتكرين على تحويل
+          الأفكار إلى نماذج ومشاريع واقعية.
+        </p>
       </section>
 
       <section class="section">
@@ -417,6 +476,7 @@ function renderContact(){
       <section class="section">
         <div class="contact-card">
           <h2>واتساب</h2>
+
           <a
             class="btn primary"
             href="https://wa.me/966566552942"
@@ -453,6 +513,7 @@ function renderStudent(){
 
       <section class="section">
         <div class="dashboard-grid">
+
           <div class="dashboard-card">
             <span>الاسم</span>
             <strong>${esc(session.name)}</strong>
@@ -467,6 +528,7 @@ function renderStudent(){
             <span>البرامج</span>
             <strong>${db.programs.length}</strong>
           </div>
+
         </div>
 
         <div class="section-actions">
@@ -511,6 +573,7 @@ function renderEmployee(){
       </section>
 
       <section class="section">
+
         <div class="dashboard-grid">
           <div class="dashboard-card">
             <span>الدور</span>
@@ -519,8 +582,11 @@ function renderEmployee(){
         </div>
 
         <div class="section-actions">
-          <button class="btn primary" id="logoutBtn">تسجيل الخروج</button>
+          <button class="btn primary" id="logoutBtn">
+            تسجيل الخروج
+          </button>
         </div>
+
       </section>
     `,'employee','لوحة الموظف | فاب لاب'),
     'employee',
@@ -546,7 +612,10 @@ function renderAdmin(){
   }
 
   if(session.role!=='admin'){
-    location.href=session.role==='employee'?'employee.html':'student.html';
+    location.href=session.role==='employee'
+      ?'employee.html'
+      :'student.html';
+
     return;
   }
 
@@ -561,7 +630,9 @@ function renderAdmin(){
       </section>
 
       <section class="section">
+
         <div class="dashboard-grid">
+
           <div class="dashboard-card">
             <span>المستخدمون</span>
             <strong>${db.users.length}</strong>
@@ -581,11 +652,15 @@ function renderAdmin(){
             <span>الرسائل</span>
             <strong>${db.messages.length}</strong>
           </div>
+
         </div>
 
         <div class="section-actions">
-          <button class="btn primary" id="logoutBtn">تسجيل الخروج</button>
+          <button class="btn primary" id="logoutBtn">
+            تسجيل الخروج
+          </button>
         </div>
+
       </section>
     `,'admin','لوحة المدير | فاب لاب'),
     'admin',
@@ -603,25 +678,35 @@ function renderAdmin(){
 }
 
 document.addEventListener('DOMContentLoaded',function(){
+
   const page=document.body.dataset.page;
 
   if(page==='home'){
     renderPublicHome();
-  }else if(page==='programs'){
+  }
+  else if(page==='programs'){
     renderPrograms();
-  }else if(page==='login'){
+  }
+  else if(page==='login'){
     renderLogin();
-  }else if(page==='register'){
+  }
+  else if(page==='register'){
     renderRegister();
-  }else if(page==='about'){
+  }
+  else if(page==='about'){
     renderAbout();
-  }else if(page==='contact'){
+  }
+  else if(page==='contact'){
     renderContact();
-  }else if(page==='student'){
+  }
+  else if(page==='student'){
     renderStudent();
-  }else if(page==='employee'){
+  }
+  else if(page==='employee'){
     renderEmployee();
-  }else if(page==='admin'){
+  }
+  else if(page==='admin'){
     renderAdmin();
   }
+
 });
