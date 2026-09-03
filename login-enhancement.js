@@ -2,7 +2,6 @@ window.addEventListener('load',function(){
   var form=document.getElementById('loginForm');
   if(!form)return;
 
-  // صفحة تسجيل الدخول لا تحتوي على صندوق التنبيه افتراضيًا، لذلك ننشئه هنا.
   var toastEl=document.getElementById('toast');
   if(!toastEl){
     toastEl=document.createElement('div');
@@ -10,6 +9,18 @@ window.addEventListener('load',function(){
     toastEl.className='toast';
     document.body.appendChild(toastEl);
   }
+
+  // تنسيق رسالة الخطأ في منتصف الصفحة بحجم أوضح.
+  toastEl.style.left='50%';
+  toastEl.style.bottom='50%';
+  toastEl.style.transform='translate(-50%,50%) scale(.96)';
+  toastEl.style.padding='18px 28px';
+  toastEl.style.fontSize='16px';
+  toastEl.style.fontWeight='700';
+  toastEl.style.borderRadius='14px';
+  toastEl.style.textAlign='center';
+  toastEl.style.minWidth='320px';
+  toastEl.style.maxWidth='90vw';
 
   form.addEventListener('submit',function(e){
     var emailInput=form.querySelector('[name="email"]');
@@ -29,7 +40,8 @@ window.addEventListener('load',function(){
     if(!account){
       toastEl.textContent='هذا البريد الإلكتروني غير مسجل. أنشئ حساب طالب أولًا.';
       toastEl.className='toast show error';
-      setTimeout(function(){toastEl.className='toast';},3000);
+      toastEl.style.transform='translate(-50%,50%) scale(1)';
+      setTimeout(function(){toastEl.className='toast';toastEl.style.transform='translate(-50%,50%) scale(.96)';},3000);
       if(emailInput)emailInput.focus();
       return;
     }
@@ -37,7 +49,8 @@ window.addEventListener('load',function(){
     if(account.password!==password||!account.active){
       toastEl.textContent='البريد الإلكتروني أو كلمة المرور غير صحيحة.';
       toastEl.className='toast show error';
-      setTimeout(function(){toastEl.className='toast';},3000);
+      toastEl.style.transform='translate(-50%,50%) scale(1)';
+      setTimeout(function(){toastEl.className='toast';toastEl.style.transform='translate(-50%,50%) scale(.96)';},3000);
       if(passwordInput)passwordInput.focus();
       return;
     }
