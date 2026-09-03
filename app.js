@@ -1,712 +1,83 @@
-const KEY='fablab_demo_v1', SESSION='fablab_session_v1';
+const DB_KEY='fablab_demo_v1';
+const SESSION_KEY='fablab_session_v1';
 
-function seed(){
-  return {
-    users:[
-      {id:1,name:'مدير النظام',email:'admin@fablab.local',password:'Admin@12345',role:'admin',status:'active'},
-      {id:2,name:'موظف تجريبي',email:'employee@fablab.local',password:'Employee@12345',role:'employee',status:'active'}
-    ],
-    programs:[
-      {id:1,name:'الروبوتات الذكية',category:'Robotics',max:20,status:'active',description:'تعلّم تصميم وبرمجة الروبوتات عمليًا.'},
-      {id:2,name:'نبض الكهرباء',category:'Electronics',max:15,status:'active',description:'أساسيات الكهرباء والدارات وشرائط LED.'},
-      {id:3,name:'صناع المستقبل',category:'Innovation',max:24,status:'active',description:'من الفكرة إلى النموذج الأولي بمشاريع عملية.'},
-      {id:4,name:'هندسة الإبداع',category:'Engineering',max:18,status:'active',description:'حل المشكلات والهندسة الإبداعية والنمذجة.'},
-      {id:5,name:'صناع الواقع',category:'Maker',max:20,status:'active',description:'تجارب تصنيع رقمي ومشاريع تطبيقية.'},
-      {id:6,name:'VEX',category:'Robotics',max:20,status:'active',description:'الروبوتات التنافسية وتصميم الروبوت وبرمجته.'},
-      {id:7,name:'SPIKE',category:'Robotics',max:20,status:'active',description:'برمجة وتصميم روبوتات LEGO SPIKE.'},
-      {id:8,name:'معسكر المبتكر الإلكتروني',category:'Electronics',max:20,status:'active',description:'ابتكار إلكتروني وتصميم نماذج أولية.'}
-    ],
-    students:[],
-    volunteers:[],
-    trainers:[],
-    attendance:[],
-    logs:[],
-    messages:[]
-  };
-}
+const seed={
+users:[
+{id:1,name:'مدير النظام',email:'admin@fablab.local',password:'Admin@12345',role:'admin',active},
+{id:2,name:'موظف تجريبي',email:'employee@fablab.local',password:'Employee@12345',role:'employee',active}
+],
+students:[],
+programs:[
+{id:1,name:'الروبوتات الذكية',category:'Robotics',max:20,status:'active',description:'تعلّم تصميم وبرمجة الروبوتات عمليًا.'},
+{id:2,name:'نبض الكهرباء',category:'Electronics',max:15,status:'active',description:'أساسيات الكهرباء والدارات وشرائط LED.'},
+{id:3,name:'صناع المستقبل',category:'Innovation',max:24,status:'active',description:'من الفكرة إلى النموذج الأولي بمشاريع عملية.'},
+{id:4,name:'هندسة الإبداع',category:'Engineering',max:18,status:'active',description:'حل المشكلات والهندسة الإبداعية والنمذجة.'},
+{id:5,name:'صناع الواقع',category:'Maker',max:20,status:'active',description:'تجارب تصنيع رقمي ومشاريع تطبيقية.'},
+{id:6,name:'VEX',category:'Robotics',max:20,status:'active',description:'الروبوتات التنافسية وتصميم الروبوت وبرمجته.'},
+{id:7,name:'SPIKE',category:'Robotics',max:20,status:'active',description:'برمجة وتصميم روبوتات LEGO SPIKE.'},
+{id:8,name:'معسكر المبتكر الإلكتروني',category:'Electronics',max:20,status:'active',description:'ابتكار إلكتروني وتصميم نماذج أولية.'}
+],
+attendance:[],
+volunteers:[],
+trainers:[],
+messages:[],
+activities:[]
+};
 
 function loadDB(){
-  try{
-    const raw=localStorage.getItem(KEY);
-    if(!raw){
-      const db=seed();
-      localStorage.setItem(KEY,JSON.stringify(db));
-      return db;
-    }
-    return JSON.parse(raw);
-  }catch(e){
-    const db=seed();
-    localStorage.setItem(KEY,JSON.stringify(db));
-    return db;
-  }
+const raw=localStorage.getItem(DB_KEY);
+if(!raw){localStorage.setItem(DB_KEY,JSON.stringify(seed));return structuredClone(seed)}
+try{return JSON.parse(raw)}catch(e){localStorage.setItem(DB_KEY,JSON.stringify(seed));return structuredClone(seed)}
 }
-
-function saveDB(db){
-  localStorage.setItem(KEY,JSON.stringify(db));
-}
-
-function getSession(){
-  try{
-    return JSON.parse(localStorage.getItem(SESSION)||'null');
-  }catch(e){
-    return null;
-  }
-}
-
-function setSession(user){
-  localStorage.setItem(SESSION,JSON.stringify(user));
-}
-
-function clearSession(){
-  localStorage.removeItem(SESSION);
-}
-
-function esc(v){
-  return String(v??'')
-    .replaceAll('&','&amp;')
-    .replaceAll('<','&lt;')
-    .replaceAll('>','&gt;')
-    .replaceAll('"','&quot;')
-    .replaceAll("'","&#039;");
-}
-
-function shell(content,active,title){
-  return `
-    <header class="topbar">
-      <div class="container nav">
-        <a class="brand" href="index.html">
-          <img src="assets/fablab-logo.png" alt="Fablab">
-          <span>فاب لاب الأحساء</span>
-        </a>
-
-        <nav class="nav-links">
-          <a class="${active==='home'?'active':''}" href="index.html">الرئيسية</a>
-          <a class="${active==='programs'?'active':''}" href="programs.html">البرامج</a>
-          <a class="${active==='about'?'active':''}" href="about.html">عن فاب لاب</a>
-          <a class="${active==='contact'?'active':''}" href="contact.html">تواصل معنا</a>
-          <a class="${active==='login'?'active':''}" href="login.html">تسجيل الدخول</a>
-        </nav>
-      </div>
-    </header>
-
-    <main class="container main">
-      ${content}
-    </main>
-
-    <footer class="footer">
-      <div class="container">
-        <div>© 2026 فاب لاب الأحساء</div>
-        <div>جميع الحقوق محفوظة</div>
-      </div>
-    </footer>
-  `;
-}
-
-function write(html,active,title){
-  document.title=title||'فاب لاب الأحساء';
-  document.body.innerHTML=html;
-}
+function saveDB(db){localStorage.setItem(DB_KEY,JSON.stringify(db))}
+function session(){try{return JSON.parse(localStorage.getItem(SESSION_KEY))}catch{return null}}
+function setSession(u){localStorage.setItem(SESSION_KEY,JSON.stringify({id.id,name.name,email.email,role.role}))}
+function clearSession(){localStorage.removeItem(SESSION_KEY)}
+function user(){const s=session();if(!s)return null;const db=loadDB();const u=db.users.find(x=>x.id===s.id);return u?.active?u}
+function roleLabel(r){return r==='admin'?'مدير النظام'==='employee'?'موظف':'طالب'}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&','<':'<','>':'>','"':'"',"'":'''}[m]))}
+function toast(msg,type='ok'){const t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.className='toast',2400)}
+function currentPage(){return document.body.dataset.page||''}
+function guard(roles=[]){const u=user();if(!u){location.href='login.html';return null}if(roles.length&&!roles.includes(u.role)){location.href='portal.html';return null}return u}
+function counts(db){return {students.students.length,programs.programs.filter(p=>p.status==='active').length,employees.users.filter(u=>u.role==='employee').length,volunteers.volunteers.length,trainers.trainers.length}}
+function updateGlobalHeader(){const u=user();document.querySelectorAll('[data-user-name]').forEach(el=>el.textContent=u?.name||'');document.querySelectorAll('[data-user-role]').forEach(el=>el.textContent=u?roleLabel(u.role):'')}
+function ensureFavicon(){if(!document.querySelector('link[rel="icon"]')){const l=document.createElement('link');l.rel='icon';l.type='image/png';l.href='assets/fablab-logo.png';document.head.appendChild(l)}if(!document.querySelector('link[rel="apple-touch-icon"]')){const l=document.createElement('link');l.rel='apple-touch-icon';l.href='assets/fablab-logo.png';document.head.appendChild(l)}}
+function publicNav(active){return <header class="site-nav"><a class="brand" href="index.html"><img src="assets/fablab-logo.png" alt="Fablab"><span>فاب لاب الأحساء</span></a><nav><a class="${active==='home'?'active':''}" href="index.html">الرئيسية</a><a class="${active==='programs'?'active':''}" href="programs.html">البرامج</a><a class="${active==='about'?'active':''}" href="about.html">عن فاب لاب</a><a class="${active==='contact'?'active':''}" href="contact.html">تواصل معنا</a></nav><div class="nav-actions"><a class="btn light" href="login.html">تسجيل الدخول</a><a class="btn primary" href="register.html">إنشاء حساب طالب</a></div></header>}
+function shell(inner,active,title='Fablab'){document.title=title;return ${publicNav(active)}<main>${inner}</main><footer class="site-footer"><span>© 2026 Fablab Al-Ahsa</span><span>تصميم وتطوير الموقع: محمد الرمضان</span><a href="contact.html">تواصل معنا</a></footer><div id="toast" class="toast"></div>}
+function write(html){document.body.innerHTML=html;updateGlobalHeader()}
+function logActivity(db,activity,actor,meta=''){db.activities.unshift({id.now(),activity,actor,meta,time Date().toISOString()});db.activities=db.activities.slice(0,30);saveDB(db)}
 
 function renderPublicHome(){
-  const db=loadDB();
-
-  const hero=`
-    <section class="hero">
-      <div class="hero-copy">
-        <span class="eyebrow">FAB LAB AL-AHSA</span>
-        <h1>من الفكرة إلى<br>نموذج ملموس.</h1>
-        <p>
-          مساحة ابتكار وتصنيع رقمي تتيح لك التعلم، التجربة،
-          التصميم وصناعة أفكارك باستخدام أحدث التقنيات.
-        </p>
-        <div class="hero-actions">
-          <a class="btn primary" href="programs.html">استكشف البرامج</a>
-          <a class="btn ghost" href="register.html">إنشاء حساب طالب</a>
-        </div>
-      </div>
-
-      <div class="hero-art">
-        <img src="assets/fablab-logo-wide.png" alt="فاب لاب الأحساء">
-      </div>
-    </section>
-  `;
-
-  const section=`
-    <section class="section">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">PROGRAMS</span>
-          <h2>اكتشف برامجنا</h2>
-        </div>
-        <a class="text-link" href="programs.html">عرض جميع البرامج ←</a>
-      </div>
-
-      <div class="program-grid">
-        ${db.programs.map(p=>`
-          <article class="program-card">
-            <span class="tag">${esc(p.category)}</span>
-            <h3>${esc(p.name)}</h3>
-            <p>${esc(p.description)}</p>
-          </article>
-        `).join('')}
-      </div>
-    </section>
-  `;
-
-  const author=`
-    <section class="author-credit">
-      <div class="author-badge">
-        <span class="author-avatar">م</span>
-        <div class="author-meta">
-          <strong>محمد الرمضان</strong>
-          <span>مساعد إداري ومالي</span>
-          <span>تجربة رقمية متكاملة</span>
-          <span>2026</span>
-        </div>
-      </div>
-    </section>
-  `;
-
-  const roles=`
-    <section class="section">
-      <div class="section-head">
-        <div>
-          <span class="eyebrow">DIGITAL EXPERIENCE</span>
-          <h2>تجربة رقمية متكاملة</h2>
-          <p>
-            منصة موحدة لإدارة البرامج والطلاب والموظفين
-            ومتابعة العمليات داخل فاب لاب الأحساء.
-          </p>
-        </div>
-      </div>
-
-      <div class="roles-grid">
-        <a class="role-card" href="register.html">
-          <span class="role-icon">🎓</span>
-          <strong>طالب</strong>
-          <span>إنشاء حساب ومتابعة البرامج</span>
-        </a>
-
-        <a class="role-card" href="login.html">
-          <span class="role-icon">👨‍💼</span>
-          <strong>موظف</strong>
-          <span>الدخول إلى لوحة الموظف</span>
-        </a>
-
-        <a class="role-card" href="login.html">
-          <span class="role-icon">⚙️</span>
-          <strong>مدير</strong>
-          <span>إدارة المنصة والبيانات</span>
-        </a>
-      </div>
-    </section>
-  `;
-
-  write(
-    shell(hero+section+author+roles,'home','فاب لاب الأحساء | الرئيسية'),
-    'home',
-    'فاب لاب الأحساء | الرئيسية'
-  );
+const db=loadDB();
+const cards=db.programs.filter(p=>p.status==='active').slice(0,6).map(p=><article class="program-card"><div class="icon">✦</div><span class="tag">${esc(p.category)}</span><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p><a href="programs.html#p${p.id}">التفاصيل</a></article>).join('');
+const hero=<section class="hero"><div class="hero-copy"><span class="eyebrow">FAB LAB AL-AHSA</span><h1>مكان تتحول فيه<br><span>الأفكار إلى نماذج.</span></h1><p>منصة فاب لاب تجمع التعلم العملي، التصنيع الرقمي، الروبوتات والإلكترونيات في تجربة واحدة.</p><div class="hero-actions"><a class="btn primary large" href="programs.html">استكشف البرامج</a><a class="btn outline large" href="register.html">سجل كطالب</a></div><div class="hero-badges"><span>✦ مشاريع عملية</span><span>✦ تعلم بالممارسة</span><span>✦ مجتمع مبتكر</span></div></div><div class="hero-art"><div class="orb"></div><img src="assets/fablab-logo-wide.png" alt="Fablab"><div class="floating-card one">🤖 روبوتات</div><div class="floating-card two">⚡ إلكترونيات</div><div class="floating-card three">🧩 تصنيع رقمي</div></div></section>;
+const section=<section class="section"><div class="section-head"><div><span class="eyebrow">PROGRAMS</span><h2>اكتشف برامجنا</h2></div><a class="text-link" href="programs.html">عرض جميع البرامج ←</a></div><div class="program-grid">${cards}</div></section>;
+const author=<section class="author-credit"><div class="author-mark">⌁</div><div class="author-copy"><span class="eyebrow">PROJECT CREDITS</span><h2>تصميم وتطوير الموقع</h2><p>تم تصميم وتطوير هذا الموقع بواسطة <strong>محمد الرمضان</strong> ضمن مشروع التدريب في فاب لاب الأحساء.</p><div class="author-meta"><span>تجربة رقمية متكاملة</span><span>2026</span></div></div><div class="author-badge"><b>محمد الرمضان</b><span>مصمم ومطور الموقع</span></div></section>;
+const roles=<section class="roles-band"><div><span class="eyebrow">ONE PLATFORM</span><h2>تجربة رقمية متكاملة</h2><p>الزائر يتصفح، الطالب يتابع تجربته، الموظف يدير التشغيل، والمدير يملك أدوات الإدارة.</p></div><div class="role-grid"><div><b>طالب</b><span>بوابة شخصية</span></div><div><b>موظف</b><span>تشغيل ومتابعة</span></div><div><b>مدير</b><span>إدارة كاملة</span></div></div></section>;
+write(shell(hero+section+author+roles,'home','الرئيسية | فاب لاب'));
 }
-
-function renderPrograms(){
-  const db=loadDB();
-
-  const rows=db.programs.map(p=>`
-    <article class="program-row" id="p${p.id}">
-      <div class="icon">✦</div>
-
-      <div class="grow">
-        <span class="tag">${esc(p.category)}</span>
-        <h2>${esc(p.name)}</h2>
-        <p>${esc(p.description)}</p>
-      </div>
-
-      <a class="btn primary" href="register.html">سجل في البرنامج</a>
-    </article>
-  `).join('');
-
-  write(
-    shell(`
-      <section class="page-head">
-        <span class="eyebrow">PROGRAMS</span>
-        <h1>برامج فاب لاب</h1>
-        <p>استكشف البرامج والمسارات التدريبية المتاحة.</p>
-      </section>
-
-      <section class="section compact">
-        ${rows || '<div class="empty">لا توجد برامج حاليًا.</div>'}
-      </section>
-    `,'programs','البرامج | فاب لاب'),
-    'programs',
-    'البرامج | فاب لاب'
-  );
-}
-
-function renderLogin(){
-  write(
-    shell(`
-      <section class="auth-wrap">
-        <div class="auth-card">
-          <span class="eyebrow">LOGIN</span>
-          <h1>تسجيل الدخول</h1>
-
-          <form id="loginForm">
-            <label>
-              البريد الإلكتروني
-              <input type="email" name="email" required>
-            </label>
-
-            <label>
-              كلمة المرور
-              <input type="password" name="password" required>
-            </label>
-
-            <button class="btn primary" type="submit">دخول</button>
-
-            <div id="loginMsg"></div>
-          </form>
-
-          <div class="auth-links">
-            <a href="register.html">إنشاء حساب طالب</a>
-          </div>
-        </div>
-      </section>
-    `,'login','تسجيل الدخول | فاب لاب'),
-    'login',
-    'تسجيل الدخول | فاب لاب'
-  );
-
-  const form=document.getElementById('loginForm');
-
-  if(form){
-    form.addEventListener('submit',function(e){
-      e.preventDefault();
-
-      const fd=new FormData(form);
-      const email=String(fd.get('email')||'').trim().toLowerCase();
-      const password=String(fd.get('password')||'');
-
-      const db=loadDB();
-
-      const user=db.users.find(
-        u=>String(u.email).toLowerCase()===email &&
-           u.password===password &&
-           u.status!=='disabled'
-      );
-
-      const msg=document.getElementById('loginMsg');
-
-      if(!user){
-        msg.innerHTML='<div class="alert error">البريد الإلكتروني أو كلمة المرور غير صحيحة.</div>';
-        return;
-      }
-
-      setSession({
-        id:user.id,
-        name:user.name,
-        email:user.email,
-        role:user.role
-      });
-
-      if(user.role==='admin'){
-        location.href='admin.html';
-      }else if(user.role==='employee'){
-        location.href='employee.html';
-      }else{
-        location.href='student.html';
-      }
-    });
-  }
-}
-
-function renderRegister(){
-  const db=loadDB();
-
-  write(
-    shell(`
-      <section class="auth-wrap">
-        <div class="auth-card">
-          <span class="eyebrow">STUDENT REGISTRATION</span>
-          <h1>إنشاء حساب طالب</h1>
-
-          <form id="registerForm">
-
-            <label>
-              الاسم الكامل
-              <input type="text" name="name" required>
-            </label>
-
-            <label>
-              البريد الإلكتروني
-              <input type="email" name="email" required>
-            </label>
-
-            <label>
-              كلمة المرور
-              <input type="password" name="password" required minlength="6">
-            </label>
-
-            <label>
-              تأكيد كلمة المرور
-              <input type="password" name="password2" required minlength="6">
-            </label>
-
-            <label>
-              البرنامج
-              <select name="program_id" required>
-                <option value="">اختر البرنامج</option>
-                ${db.programs.map(p=>`
-                  <option value="${p.id}">${esc(p.name)}</option>
-                `).join('')}
-              </select>
-            </label>
-
-            <button class="btn primary" type="submit">
-              إنشاء الحساب
-            </button>
-
-            <div id="registerMsg"></div>
-          </form>
-        </div>
-      </section>
-    `,'login','إنشاء حساب طالب | فاب لاب'),
-    'login',
-    'إنشاء حساب طالب | فاب لاب'
-  );
-
-  const form=document.getElementById('registerForm');
-
-  if(form){
-    form.addEventListener('submit',function(e){
-      e.preventDefault();
-
-      const fd=new FormData(form);
-
-      const name=String(fd.get('name')||'').trim();
-      const email=String(fd.get('email')||'').trim().toLowerCase();
-      const password=String(fd.get('password')||'');
-      const password2=String(fd.get('password2')||'');
-      const program_id=Number(fd.get('program_id'));
-
-      const msg=document.getElementById('registerMsg');
-
-      if(password!==password2){
-        msg.innerHTML='<div class="alert error">كلمتا المرور غير متطابقتين.</div>';
-        return;
-      }
-
-      const db=loadDB();
-
-      if(db.users.some(u=>String(u.email).toLowerCase()===email)){
-        msg.innerHTML='<div class="alert error">البريد الإلكتروني مستخدم مسبقًا.</div>';
-        return;
-      }
-
-      const id=Date.now();
-
-      db.users.push({
-        id,
-        name,
-        email,
-        password,
-        role:'student',
-        status:'active'
-      });
-
-      db.students.push({
-        id,
-        user_id:id,
-        name,
-        email,
-        program_id,
-        created_at:new Date().toISOString()
-      });
-
-      saveDB(db);
-
-      setSession({
-        id,
-        name,
-        email,
-        role:'student'
-      });
-
-      location.href='student.html';
-    });
-  }
-}
-
-function renderAbout(){
-  write(
-    shell(`
-      <section class="page-head">
-        <span class="eyebrow">ABOUT</span>
-        <h1>عن فاب لاب الأحساء</h1>
-        <p>
-          بيئة تعليمية وصناعية تساعد المبتكرين على تحويل
-          الأفكار إلى نماذج ومشاريع واقعية.
-        </p>
-      </section>
-
-      <section class="section">
-        <div class="about-card">
-          <h2>التعلم بالتجربة</h2>
-          <p>
-            يوفر فاب لاب مساحة للتعلم العملي والتصميم والتصنيع الرقمي
-            من خلال مجموعة من البرامج والأنشطة التقنية.
-          </p>
-        </div>
-      </section>
-    `,'about','عن فاب لاب الأحساء'),
-    'about',
-    'عن فاب لاب الأحساء'
-  );
-}
-
-function renderContact(){
-  write(
-    shell(`
-      <section class="page-head">
-        <span class="eyebrow">CONTACT</span>
-        <h1>تواصل معنا</h1>
-        <p>يسعدنا استقبال استفساراتكم ومقترحاتكم.</p>
-      </section>
-
-      <section class="section">
-        <div class="contact-card">
-          <h2>واتساب</h2>
-
-          <a
-            class="btn primary"
-            href="https://wa.me/966566552942"
-            target="_blank"
-            rel="noopener"
-          >
-            واتساب · 0566552942
-          </a>
-        </div>
-      </section>
-    `,'contact','تواصل معنا | فاب لاب'),
-    'contact',
-    'تواصل معنا | فاب لاب'
-  );
-}
-
-function renderStudent(){
-  const session=getSession();
-
-  if(!session){
-    location.href='login.html';
-    return;
-  }
-
-  const db=loadDB();
-
-  write(
-    shell(`
-      <section class="page-head">
-        <span class="eyebrow">STUDENT</span>
-        <h1>مرحبًا ${esc(session.name)}</h1>
-        <p>هذه صفحتك الخاصة كطالب.</p>
-      </section>
-
-      <section class="section">
-        <div class="dashboard-grid">
-
-          <div class="dashboard-card">
-            <span>الاسم</span>
-            <strong>${esc(session.name)}</strong>
-          </div>
-
-          <div class="dashboard-card">
-            <span>البريد الإلكتروني</span>
-            <strong>${esc(session.email)}</strong>
-          </div>
-
-          <div class="dashboard-card">
-            <span>البرامج</span>
-            <strong>${db.programs.length}</strong>
-          </div>
-
-        </div>
-
-        <div class="section-actions">
-          <a class="btn ghost" href="programs.html">استعراض البرامج</a>
-          <button class="btn primary" id="logoutBtn">تسجيل الخروج</button>
-        </div>
-      </section>
-    `,'student','حساب الطالب | فاب لاب'),
-    'student',
-    'حساب الطالب | فاب لاب'
-  );
-
-  const logout=document.getElementById('logoutBtn');
-
-  if(logout){
-    logout.onclick=function(){
-      clearSession();
-      location.href='index.html';
-    };
-  }
-}
-
-function renderEmployee(){
-  const session=getSession();
-
-  if(!session){
-    location.href='login.html';
-    return;
-  }
-
-  if(session.role!=='employee' && session.role!=='admin'){
-    location.href='student.html';
-    return;
-  }
-
-  write(
-    shell(`
-      <section class="page-head">
-        <span class="eyebrow">EMPLOYEE</span>
-        <h1>لوحة الموظف</h1>
-        <p>مرحبًا ${esc(session.name)}.</p>
-      </section>
-
-      <section class="section">
-
-        <div class="dashboard-grid">
-          <div class="dashboard-card">
-            <span>الدور</span>
-            <strong>موظف</strong>
-          </div>
-        </div>
-
-        <div class="section-actions">
-          <button class="btn primary" id="logoutBtn">
-            تسجيل الخروج
-          </button>
-        </div>
-
-      </section>
-    `,'employee','لوحة الموظف | فاب لاب'),
-    'employee',
-    'لوحة الموظف | فاب لاب'
-  );
-
-  const logout=document.getElementById('logoutBtn');
-
-  if(logout){
-    logout.onclick=function(){
-      clearSession();
-      location.href='index.html';
-    };
-  }
-}
-
-function renderAdmin(){
-  const session=getSession();
-
-  if(!session){
-    location.href='login.html';
-    return;
-  }
-
-  if(session.role!=='admin'){
-    location.href=session.role==='employee'
-      ?'employee.html'
-      :'student.html';
-
-    return;
-  }
-
-  const db=loadDB();
-
-  write(
-    shell(`
-      <section class="page-head">
-        <span class="eyebrow">ADMIN</span>
-        <h1>لوحة المدير</h1>
-        <p>مرحبًا ${esc(session.name)}.</p>
-      </section>
-
-      <section class="section">
-
-        <div class="dashboard-grid">
-
-          <div class="dashboard-card">
-            <span>المستخدمون</span>
-            <strong>${db.users.length}</strong>
-          </div>
-
-          <div class="dashboard-card">
-            <span>الطلاب</span>
-            <strong>${db.students.length}</strong>
-          </div>
-
-          <div class="dashboard-card">
-            <span>البرامج</span>
-            <strong>${db.programs.length}</strong>
-          </div>
-
-          <div class="dashboard-card">
-            <span>الرسائل</span>
-            <strong>${db.messages.length}</strong>
-          </div>
-
-        </div>
-
-        <div class="section-actions">
-          <button class="btn primary" id="logoutBtn">
-            تسجيل الخروج
-          </button>
-        </div>
-
-      </section>
-    `,'admin','لوحة المدير | فاب لاب'),
-    'admin',
-    'لوحة المدير | فاب لاب'
-  );
-
-  const logout=document.getElementById('logoutBtn');
-
-  if(logout){
-    logout.onclick=function(){
-      clearSession();
-      location.href='index.html';
-    };
-  }
-}
-
-document.addEventListener('DOMContentLoaded',function(){
-
-  const page=document.body.dataset.page;
-
-  if(page==='home'){
-    renderPublicHome();
-  }
-  else if(page==='programs'){
-    renderPrograms();
-  }
-  else if(page==='login'){
-    renderLogin();
-  }
-  else if(page==='register'){
-    renderRegister();
-  }
-  else if(page==='about'){
-    renderAbout();
-  }
-  else if(page==='contact'){
-    renderContact();
-  }
-  else if(page==='student'){
-    renderStudent();
-  }
-  else if(page==='employee'){
-    renderEmployee();
-  }
-  else if(page==='admin'){
-    renderAdmin();
-  }
-
-});
+function renderPrograms(){const db=loadDB();const rows=db.programs.map(p=><article class="program-row" id="p${p.id}"><div class="icon">✦</div><div class="grow"><span class="tag">${esc(p.category)}</span><h2>${esc(p.name)}</h2><p>${esc(p.description)}</p></div><a class="btn primary" href="register.html">سجل في البرنامج</a></article>).join('');write(shell(<section class="page-head"><span class="eyebrow">PROGRAMS</span><h1>برامج فاب لاب</h1><p>استكشف البرامج والمسارات التدريبية المتاحة.</p></section><section class="section compact">${rows||'<div class="empty">لا توجد برامج حاليًا.</div>'}</section>,'programs','البرامج | فاب لاب'))}
+function renderAbout(){write(shell(<section class="page-head"><span class="eyebrow">ABOUT</span><h1>عن فاب لاب الأحساء</h1><p>مساحة عملية للابتكار والتصميم والتصنيع الرقمي.</p></section><section class="content-grid"><div class="info-card"><div class="icon">✦</div><h2>نتعلم بالممارسة</h2><p>برامج ومشاريع تساعد المشارك على الانتقال من الفكرة إلى نموذج أولي قابل للتجربة.</p></div><div class="info-card"><div class="icon">⚙</div><h2>نبني مهارات المستقبل</h2><p>الروبوتات، الإلكترونيات، البرمجة، التصنيع الرقمي والهندسة الإبداعية.</p></div><div class="info-card"><div class="icon">◎</div><h2>مجتمع ابتكار</h2><p>بيئة تجمع الطلاب والمدربين والمتطوعين حول مشاريع وتجارب مشتركة.</p></div><div class="info-card"><div class="icon">⌁</div><h2>منصة رقمية</h2><p>تسجيل وحسابات وبرامج وحضور ومتابعة عبر تجربة رقمية موحدة.</p></div></section>,'about','عن فاب لاب | فاب لاب'))}
+function renderContact(){write(shell(<section class="page-head"><span class="eyebrow">CONTACT</span><h1>تواصل معنا</h1><p>يسعدنا استقبال الاستفسارات والمقترحات والشراكات.</p></section><section class="form-card"><form id="contactForm"><div class="form-row"><label>الاسم<input name="name" required></label><label>البريد الإلكتروني<input name="email" type="email" required></label></div><label>رقم الجوال<input name="phone"></label><label>رسالتك<textarea name="message" required></textarea></label><button class="btn primary">إرسال الرسالة</button></form></section>,'contact','تواصل معنا | فاب لاب'));document.getElementById('contactForm').addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(e.currentTarget),db=loadDB();db.messages.unshift({id.now(),name.get('name'),email.get('email'),phone.get('phone'),message.get('message'),time Date().toISOString()});saveDB(db);e.currentTarget.reset();toast('تم إرسال رسالتك بنجاح')})}
+function renderLogin(){write(<div class="auth-wrap"><div class="auth-card"><a class="brand center" href="index.html"><img src="assets/fablab-logo.png" alt="Fablab"><span>فاب لاب الأحساء</span></a><h1>تسجيل الدخول</h1><p class="muted">ادخل إلى بوابتك حسب نوع حسابك.</p><form id="loginForm"><label>البريد الإلكتروني<input type="email" name="email" required></label><label>كلمة المرور<input type="password" name="password" required></label><button class="btn primary full">دخول</button></form><div class="demo-box"><b>حساب المدير التجريبي</b><span>admin@fablab.local</span><span>Admin@12345</span></div><div class="auth-links"><a href="register.html">إنشاء حساب طالب</a><a href="index.html">العودة للموقع</a></div></div></div>);document.getElementById('loginForm').addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(e.currentTarget),db=loadDB();const u=db.users.find(x=>x.email.toLowerCase()===String(fd.get('email')).toLowerCase()&&x.password===fd.get('password')&&x.active);if(!u){toast('البريد أو كلمة المرور غير صحيحة','error');return}setSession(u);location.href='portal.html'})}
+function renderRegister(){const db=loadDB();const opts=db.programs.filter(p=>p.status==='active').map(p=><option value="${p.id}">${esc(p.name)}</option>).join('');write(<div class="auth-wrap"><div class="auth-card wide"><a class="brand center" href="index.html"><img src="assets/fablab-logo.png" alt="Fablab"><span>فاب لاب الأحساء</span></a><h1>إنشاء حساب طالب</h1><p class="muted">سجل بنفسك وادخل إلى بوابتك الشخصية.</p><form id="registerForm"><div class="form-row"><label>الاسم الكامل<input name="name" required></label><label>رقم الجوال<input name="phone" required></label></div><div class="form-row"><label>البريد الإلكتروني<input type="email" name="email" required></label><label>العمر<input type="number" name="age" min="7" max="80" required></label></div><div class="form-row"><label>الجنس<select name="gender" required><option value="">اختر</option><option>ذكر</option><option>أنثى</option></select></label><label>البرنامج<select name="program" required><option value="">اختر البرنامج</option>${opts}</select></label></div><label>كلمة المرور<input type="password" name="password" minlength="6" required></label><button class="btn primary full">إنشاء الحساب</button></form><div class="auth-links"><a href="login.html">لديك حساب؟ تسجيل الدخول</a><a href="index.html">العودة للموقع</a></div></div></div>);document.getElementById('registerForm').addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(e.currentTarget),db=loadDB(),email=String(fd.get('email')).trim().toLowerCase();if(db.users.some(u=>u.email.toLowerCase()===email)){toast('البريد الإلكتروني مستخدم مسبقًا','error');return}const programId=Number(fd.get('program')),program=db.programs.find(p=>p.id===programId);const used=db.students.filter(s=>s.programId===programId).length;if(program&&used>=program.max){toast('البرنامج مكتمل حاليًا','error');return}const uid=Date.now(),studentId=uid+1;db.users.push({id,name(fd.get('name')).trim(),email,password(fd.get('password')),role:'student',active});db.students.push({id,userId,name(fd.get('name')).trim(),phone(fd.get('phone')).trim(),age(fd.get('age')),gender(fd.get('gender')),programId,createdAt Date().toISOString()});logActivity(db,'إنشاء حساب طالب',String(fd.get('name')).trim(),program?.name||'');setSession(db.users[db.users.length-1]);toast('تم إنشاء الحساب بنجاح');setTimeout(()=>location.href='portal.html',400)})}
+
+function portalSide(role){const isAdmin=role==='admin',isEmployee=role==='employee';let links='';if(isAdmin){links=<a class="side-link" href="admin.html">الرئيسية</a><a class="side-link" href="admin-students.html">الطلاب</a><a class="side-link" href="admin-programs.html">البرامج</a><a class="side-link" href="admin-attendance.html">الحضور</a><a class="side-link" href="admin-people.html">المتطوعون والمدربون</a><a class="side-link" href="admin-users.html">الموظفون</a><a class="side-link" href="admin-reports.html">التقارير</a><a class="side-link" href="admin-settings.html">الإعدادات</a>}else if(isEmployee){links=<a class="side-link" href="employee.html">الرئيسية</a><a class="side-link" href="employee-students.html">الطلاب</a><a class="side-link" href="employee-attendance.html">الحضور</a><a class="side-link" href="programs.html">البرامج</a><a class="side-link" href="employee-settings.html">الإعدادات</a>}else{links=<a class="side-link" href="student.html">حسابي</a><a class="side-link" href="student-attendance.html">حضوري</a><a class="side-link" href="programs.html">البرامج</a><a class="side-link" href="student-settings.html">الإعدادات</a>}return <aside class="portal-side"><a class="brand" href="index.html"><img src="assets/fablab-logo.png" alt="Fablab"><span>فاب لاب الأحساء</span></a><nav>${links}<a class="side-link logout" href="index.html" id="logoutLink">تسجيل الخروج</a></nav></aside>}
+function portalShell(inner,title,role){const u=user();if(!u)return '';document.title=title;return ${portalSide(role)}<main class="portal-main"><div class="portal-top"><div><span class="eyebrow">FAB LAB PORTAL</span><h1>${title}</h1><p>مرحبًا ${esc(u.name)} · ${roleLabel(u.role)}</p></div><button class="icon-btn" onclick="history.back()">←</button></div>${inner}</main><div id="toast" class="toast"></div>}
+function setupLogout(){document.getElementById('logoutLink')?.addEventListener('click',e=>{e.preventDefault();clearSession();location.href='index.html'})}
+function renderAdmin(){const u=guard(['admin']);if(!u)return;const db=loadDB(),c=counts(db);const recent=db.activities.slice(0,6).map(a=><tr><td>${esc(a.activity)}</td><td>${esc(a.actor)}</td><td>${new Date(a.time).toLocaleDateString('ar-SA')}</td></tr>).join('');document.body.innerHTML=portalShell(<div class="kpi-grid"><div class="kpi"><span>الطلاب</span><strong>${c.students}</strong></div><div class="kpi"><span>البرامج النشطة</span><strong>${c.programs}</strong></div><div class="kpi"><span>الموظفون</span><strong>${c.employees}</strong></div><div class="kpi"><span>المدربون</span><strong>${c.trainers}</strong></div></div><div class="quick-grid"><a class="quick" href="admin-programs.html"><b>إدارة البرامج</b><span>إضافة وتعديل البرامج</span></a><a class="quick" href="admin-students.html"><b>الطلاب</b><span>عرض وإدارة الطلاب</span></a><a class="quick" href="admin-attendance.html"><b>الحضور</b><span>تسجيل ومتابعة الحضور</span></a><a class="quick" href="admin-users.html"><b>الموظفون</b><span>إنشاء حسابات الموظفين</span></a></div><section class="portal-card"><h2>آخر الأنشطة</h2><div class="table-wrap"><table><thead><tr><th>النشاط</th><th>المنفذ</th><th>التاريخ</th></tr></thead><tbody>${recent||'<tr><td colspan="3" class="empty">لا توجد أنشطة بعد.</td></tr>'}</tbody></table></div></section>,'لوحة المدير','admin');setupLogout()}
+function renderEmployee(){const u=guard(['employee']);if(!u)return;const db=loadDB(),c=counts(db);document.body.innerHTML=portalShell(<div class="kpi-grid"><div class="kpi"><span>الطلاب</span><strong>${c.students}</strong></div><div class="kpi"><span>البرامج النشطة</span><strong>${c.programs}</strong></div><div class="kpi"><span>الحضور المسجل</span><strong>${db.attendance.length}</strong></div><div class="kpi"><span>آخر تحديث</span><strong class="small-value">${new Date().toLocaleDateString('ar-SA')}</strong></div></div><div class="quick-grid"><a class="quick" href="employee-students.html"><b>الطلاب</b><span>متابعة بيانات الطلاب</span></a><a class="quick" href="employee-attendance.html"><b>الحضور</b><span>تسجيل ومراجعة الحضور</span></a><a class="quick" href="programs.html"><b>البرامج</b><span>عرض البرامج المتاحة</span></a><a class="quick" href="employee-settings.html"><b>الإعدادات</b><span>تعديل بيانات الحساب</span></a></div>,'لوحة الموظف','employee');setupLogout()}
+function renderStudent(){const u=guard(['student']);if(!u)return;const db=loadDB(),s=db.students.find(x=>x.userId===u.id),p=db.programs.find(x=>x.id===s?.programId),att=db.attendance.filter(a=>a.studentId===s?.id),present=att.filter(a=>a.status==='present').length;document.body.innerHTML=portalShell(<section class="hero-card"><div><span class="eyebrow">STUDENT</span><h2>${esc(u.name)}</h2><p>مرحبًا بك في بوابتك الشخصية.</p></div><a class="btn primary" href="student-settings.html">تعديل بياناتي</a></section><div class="kpi-grid"><div class="kpi"><span>البرنامج</span><strong class="small-value">${esc(p?.name||'غير محدد')}</strong></div><div class="kpi"><span>أيام الحضور</span><strong>${present}</strong></div><div class="kpi"><span>البريد</span><strong class="small-value">${esc(u.email)}</strong></div><div class="kpi"><span>الحالة</span><strong class="small-value">نشط</strong></div></div><section class="portal-card"><h2>بياناتي</h2><div class="detail-grid"><div><span>الاسم</span><strong>${esc(s?.name||u.name)}</strong></div><div><span>الجوال</span><strong>${esc(s?.phone||'—')}</strong></div><div><span>العمر</span><strong>${esc(s?.age||'—')}</strong></div><div><span>الجنس</span><strong>${esc(s?.gender||'—')}</strong></div></div></section>,'بوابة الطالب','student');setupLogout()}
+function renderStudentAttendance(){const u=guard(['student']);if(!u)return;const db=loadDB(),s=db.students.find(x=>x.userId===u.id),rows=db.attendance.filter(a=>a.studentId===s?.id).sort((a,b)=>b.date.localeCompare(a.date)).map(a=><tr><td>${esc(a.date)}</td><td>${a.status==='present'?'<span class="status-chip ok">حاضر</span>':'<span class="status-chip bad">غائب</span>'}</td><td>${esc(a.checkIn||'—')}</td><td>${esc(a.notes||'')}</td></tr>).join('');document.body.innerHTML=portalShell(<section class="portal-card"><h2>سجل الحضور</h2><div class="table-wrap"><table><thead><tr><th>التاريخ</th><th>الحالة</th><th>الدخول</th><th>ملاحظات</th></tr></thead><tbody>${rows||'<tr><td colspan="4" class="empty">لا توجد سجلات حضور.</td></tr>'}</tbody></table></div></section>,'حضوري','student');setupLogout()}
+function renderStudentSettings(){const u=guard(['student']);if(!u)return;const db=loadDB(),s=db.students.find(x=>x.userId===u.id);document.body.innerHTML=portalShell(<section class="portal-card"><h2>الإعدادات</h2><form id="studentSettings"><div class="form-row"><label>الاسم<input name="name" value="${esc(u.name)}" required></label><label>الجوال<input name="phone" value="${esc(s?.phone||'')}" required></label></div><div class="form-row"><label>البريد الإلكتروني<input type="email" name="email" value="${esc(u.email)}" required></label><label>كلمة المرور الجديدة<input type="password" name="password" placeholder="اتركها فارغة للإبقاء على الحالية"></label></div><button class="btn primary">حفظ التغييرات</button></form></section>,'إعدادات الطالب','student');document.getElementById('studentSettings').addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(e.currentTarget),db=loadDB(),idx=db.users.findIndex(x=>x.id===u.id),st=db.students.find(x=>x.userId===u.id),newEmail=String(fd.get('email')).trim().toLowerCase();if(db.users.some(x=>x.id!==u.id&&x.email.toLowerCase()===newEmail)){toast('البريد مستخدم من حساب آخر','error');return}db.users[idx].name=String(fd.get('name')).trim();db.users[idx].email=newEmail;if(String(fd.get('password')).trim())db.users[idx].password=String(fd.get('password'));if(st){st.name=db.users[idx].name;st.phone=String(fd.get('phone')).trim()}saveDB(db);setSession(db.users[idx]);toast('تم حفظ التغييرات');setTimeout(()=>location.reload(),300)})}
+function renderAdminStudents(){const u=guard(['admin','employee']);if(!u)return;const db=loadDB();const rows=db.students.map(s=>{const userRec=db.users.find(x=>x.id===s.userId),p=db.programs.find(x=>x.id===s.programId);return <tr><td>${esc(s.name||userRec?.name)}</td><td>${esc(userRec?.email)}</td><td>${esc(s.phone)}</td><td>${esc(p?.name||'—')}</td><td>${esc(s.gender)}</td></tr>}).join('');document.body.innerHTML=portalShell(<section class="portal-card"><div class="toolbar"><input id="studentSearch" placeholder="بحث بالاسم أو البريد..."></div><div class="table-wrap"><table><thead><tr><th>الاسم</th><th>البريد</th><th>الجوال</th><th>البرنامج</th><th>الجنس</th></tr></thead><tbody id="studentRows">${rows||'<tr><td colspan="5" class="empty">لا يوجد طلاب.</td></tr>'}</tbody></table></div></section>,'الطلاب',u.role);document.getElementById('studentSearch').addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll('#studentRows tr').forEach(r=>r.style.display=r.textContent.toLowerCase().includes(q)?'':'none')});setupLogout()}
+function renderAdminPrograms(){const u=guard(['admin']);if(!u)return;const db=loadDB();const rows=db.programs.map(p=><tr><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td>${p.max}</td><td><button class="small-btn danger" data-del="${p.id}">حذف</button></td></tr>).join('');document.body.innerHTML=portalShell(<section class="portal-card"><h2>إدارة البرامج</h2><form id="programForm"><div class="form-row"><label>اسم البرنامج<input name="name" required></label><label>التصنيف<input name="category" required></label></div><div class="form-row"><label>السعة<input type="number" name="max" min="1" required></label><label>الوصف<input name="description" required></label></div><button class="btn primary">إضافة البرنامج</button></form></section><section class="portal-card"><div class="table-wrap"><table><thead><tr><th>البرنامج</th><th>التصنيف</th><th>السعة</th><th></th></tr></thead><tbody id="programRows">${rows}</tbody></table></div></section>,'إدارة البرامج','admin');document.getElementById('programForm').addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(e.currentTarget),db=loadDB();db.programs.push({id.now(),name(fd.get('name')).trim(),category(fd.get('category')).trim(),max(fd.get('max')),status:'active',description(fd.get('description')).trim()});logActivity(db,'إضافة برنامج',u.name,String(fd.get('name')).trim());toast('تمت إضافة البرنامج');setTimeout(()=>location.reload(),300)});document.querySelectorAll('[data-del]').forEach(btn=>btn.addEventListener('click',()=>{const id=Number(btn.dataset.del),d=loadDB();d.programs=d.programs.filter(p=>p.id!==id);saveDB(d);toast('تم حذف البرنامج');setTimeout(()=>location.reload(),300)}));setupLogout()}
+function renderAdminUsers(){const u=guard(['admin']);if(!u)return;const db=loadDB();const rows=db.users.filter(x=>x.role==='employee').map(e=><tr><td>${esc(e.name)}</td><td>${esc(e.email)}</td><td>${e.active?'نشط':'متوقف'}</td></tr>).join('');document.body.innerHTML=portalShell(<section class="portal-card"><h2>إنشاء حساب موظف</h2><form id="employeeForm"><div class="form-row"><label>الاسم<input name="name" required></label><label>البريد الإلكتروني<input type="email" name="email" required></label></div><label>كلمة المرور<input type="password" name="password" required minlength="6"></label><button class="btn primary">إنشاء الحساب</button></form></section><section class="portal-card"><h2>الموظفون الحاليون</h2><div class="table-wrap"><table><thead><tr><th>الاسم</th><th>البريد</th><th>الحالة</th></tr></thead><tbody>${rows||'<tr><td colspan="3" class="empty">لا يوجد موظفون.</td></tr>'}</tbody></table></div></section>,'الموظفون','admin');document.getElementById('employeeForm').addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(e.currentTarget),d=loadDB(),email=String(fd.get('email')).trim().toLowerCase();if(d.users.some(x=>x.email.toLowerCase()===email)){toast('البريد مستخدم مسبقًا','error');return}d.users.push({id.now(),name(fd.get('name')).trim(),email,password(fd.get('password')),role:'employee',active});logActivity(d,'إنشاء حساب موظف',u.name,email);toast('تم إنشاء حساب الموظف');setTimeout(()=>location.reload(),300)});setupLogout()}
+function renderAdminAttendance(){const u=guard(['admin','employee']);if(!u)return;const db=loadDB();const students=db.students.map(s=><option value="${s.id}">${esc(s.name)}</option>).join('');const rows=db.attendance.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(a=>{const s=db.students.find(x=>x.id===a.studentId);return <tr><td>${esc(s?.name||'—')}</td><td>${esc(a.date)}</td><td>${a.status==='present'?'<span class="status-chip ok">حاضر</span>':'<span class="status-chip bad">غائب</span>'}</td><td>${esc(a.checkIn||'—')}</td></tr>}).join('');document.body.innerHTML=portalShell(<section class="portal-card"><h2>تسجيل الحضور</h2><form id="attForm"><div class="form-row"><label>الطالب<select name="studentId" required><option value="">اختر الطالب</option>${students}</select></label><label>التاريخ<input type="date" name="date" required value="${new Date().toISOString().slice(0,10)}"></label></div><div class="form-row"><label>الحالة<select name="status"><option value="present">حاضر</option><option value="absent">غائب</option></select></label><label>وقت الدخول<input type="time" name="checkIn"></label></div><label>ملاحظات<input name="notes"></label><button class="btn primary">حفظ الحضور</button></form></section><section class="portal-card"><h2>السجل</h2><div class="table-wrap"><table><thead><tr><th>الطالب</th><th>التاريخ</th><th>الحالة</th><th>الدخول</th></tr></thead><tbody>${rows||'<tr><td colspan="4" class="empty">لا توجد سجلات.</td></tr>'}</tbody></table></div></section>,'الحضور',u.role);document.getElementById('attForm').addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(e.currentTarget),d=loadDB();d.attendance.push({id.now(),studentId(fd.get('studentId')),date(fd.get('date')),status(fd.get('status')),checkIn(fd.get('checkIn')||''),notes(fd.get('notes')||'')});logActivity(d,'تسجيل حضور',u.name);toast('تم حفظ الحضور');setTimeout(()=>location.reload(),300)});setupLogout()}
+function renderPeople(){const u=guard(['admin']);if(!u)return;const d=loadDB();const vs=d.volunteers.map(v=><tr><td>${esc(v.name)}</td><td>${esc(v.phone||'—')}</td><td>${esc(v.role||'—')}</td></tr>).join('');const ts=d.trainers.map(t=><tr><td>${esc(t.name)}</td><td>${esc(t.phone||'—')}</td><td>${esc(t.specialty||'—')}</td></tr>).join('');document.body.innerHTML=portalShell(<div class="content-grid" style="padding:0;grid-template-columns:1fr 1fr"><section class="portal-card"><h2>المتطوعون</h2><div class="table-wrap"><table><thead><tr><th>الاسم</th><th>الجوال</th><th>الدور</th></tr></thead><tbody>${vs||'<tr><td colspan="3" class="empty">لا يوجد متطوعون.</td></tr>'}</tbody></table></div></section><section class="portal-card"><h2>المدربون</h2><div class="table-wrap"><table><thead><tr><th>الاسم</th><th>الجوال</th><th>التخصص</th></tr></thead><tbody>${ts||'<tr><td colspan="3" class="empty">لا يوجد مدربون.</td></tr>'}</tbody></table></div></section></div>,'المتطوعون والمدربون','admin');setupLogout()}
+function renderAdminReports(){const u=guard(['admin']);if(!u)return;const d=loadDB(),c=counts(d);document.body.innerHTML=portalShell(<div class="kpi-grid"><div class="kpi"><span>إجمالي الطلاب</span><strong>${c.students}</strong></div><div class="kpi"><span>البرامج النشطة</span><strong>${c.programs}</strong></div><div class="kpi"><span>الموظفون</span><strong>${c.employees}</strong></div><div class="kpi"><span>سجلات الحضور</span><strong>${d.attendance.length}</strong></div></div><section class="portal-card"><h2>ملخص البرامج</h2><div class="table-wrap"><table><thead><tr><th>البرنامج</th><th>المسجلون</th><th>السعة</th><th>المتاح</th></tr></thead><tbody>${d.programs.map(p=>{const n=d.students.filter(s=>s.programId===p.id).length;return <tr><td>${esc(p.name)}</td><td>${n}</td><td>${p.max}</td><td>${Math.max(0,p.max-n)}</td></tr>}).join('')}</tbody></table></div></section>,'التقارير','admin');setupLogout()}
+function renderAdminSettings(){const u=guard(['admin']);if(!u)return;document.body.innerHTML=portalShell(<section class="portal-card"><h2>إعدادات المدير</h2><form id="adminSettings"><div class="form-row"><label>الاسم<input name="name" value="${esc(u.name)}" required></label><label>البريد الإلكتروني<input type="email" name="email" value="${esc(u.email)}" required></label></div><label>كلمة المرور الجديدة<input type="password" name="password" placeholder="اتركها فارغة للإبقاء على الحالية"></label><button class="btn primary">حفظ</button></form></section>,'إعدادات المدير','admin');document.getElementById('adminSettings').addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(e.currentTarget),d=loadDB(),i=d.users.findIndex(x=>x.id===u.id),email=String(fd.get('email')).trim().toLowerCase();if(d.users.some(x=>x.id!==u.id&&x.email.toLowerCase()===email)){toast('البريد مستخدم من حساب آخر','error');return}d.users[i].name=String(fd.get('name')).trim();d.users[i].email=email;if(String(fd.get('password')).trim())d.users[i].password=String(fd.get('password'));saveDB(d);setSession(d.users[i]);toast('تم حفظ التغييرات');setTimeout(()=>location.reload(),300)});setupLogout()}
+function renderEmployeeSettings(){const u=guard(['employee']);if(!u)return;document.body.innerHTML=portalShell(<section class="portal-card"><h2>إعدادات الحساب</h2><form id="empSettings"><div class="form-row"><label>الاسم<input name="name" value="${esc(u.name)}" required></label><label>البريد الإلكتروني<input type="email" name="email" value="${esc(u.email)}" required></label></div><label>كلمة المرور الجديدة<input type="password" name="password" placeholder="اتركها فارغة للإبقاء على الحالية"></label><button class="btn primary">حفظ التغييرات</button></form></section>,'إعدادات الموظف','employee');document.getElementById('empSettings').addEventListener('submit',e=>{e.preventDefault();const fd=new FormData(e.currentTarget),d=loadDB(),i=d.users.findIndex(x=>x.id===u.id),email=String(fd.get('email')).trim().toLowerCase();if(d.users.some(x=>x.id!==u.id&&x.email.toLowerCase()===email)){toast('البريد مستخدم من حساب آخر','error');return}d.users[i].name=String(fd.get('name')).trim();d.users[i].email=email;if(String(fd.get('password')).trim())d.users[i].password=String(fd.get('password'));saveDB(d);setSession(d.users[i]);toast('تم حفظ التغييرات');setTimeout(()=>location.reload(),300)});setupLogout()}
+function renderPortal(){const u=user();if(!u){location.href='login.html';return}if(u.role==='admin')renderAdmin();else if(u.role==='employee')renderEmployee();else renderStudent()}
+function render(){switch(currentPage()){case 'home'();break;case 'programs'();break;case 'about'();break;case 'contact'();break;case 'login'();break;case 'register'();break;case 'portal'();break;case 'admin'();break;case 'admin-students'();break;case 'admin-programs'();break;case 'admin-attendance'();break;case 'admin-people'();break;case 'admin-users'();break;case 'admin-reports'();break;case 'admin-settings'();break;case 'employee'();break;case 'employee-students'();break;case 'employee-attendance'();break;case 'employee-settings'();break;case 'student'();break;case 'student-attendance'();break;case 'student-settings'();break;default()}}
+document.addEventListener('DOMContentLoaded',()=>{ensureFavicon();render()});
