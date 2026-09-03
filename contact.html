@@ -1,1 +1,34 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Contact | Fablab</title><link rel="stylesheet" href="assets/style.css"></head><body data-page="contact"><script src="app.js"></script><script>(function(){const box=document.querySelector('.form-card');if(!box)return;const wa=document.createElement('div');wa.className='whatsapp-card';wa.innerHTML='<div><span class="eyebrow">WHATSAPP</span><h2>تواصل معي مباشرة</h2><p>للاستفسارات والتواصل السريع عبر الواتساب</p><a class="btn primary" href="https://wa.me/966566552942" target="_blank" rel="noopener noreferrer">واتساب · 0566552942</a></div>';box.parentNode.insertBefore(wa,box);})();</script></body></html>
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تواصل معنا | فاب لاب الأحساء</title>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/png" href="assets/fablab-logo.png">
+</head>
+<body>
+<header class="site-nav">
+<a class="brand" href="index.html"><img src="assets/fablab-logo.png" alt="Fablab"><span>فاب لاب الأحساء</span></a>
+<nav>
+<a href="index.html">الرئيسية</a>
+<a href="programs.html">البرامج</a>
+<a href="about.html">عن فاب لاب</a>
+<a class="active" href="contact.html">تواصل معنا</a>
+</nav>
+<div class="nav-actions"><a class="btn light" href="login.html">تسجيل الدخول</a><a class="btn primary" href="register.html">إنشاء حساب طالب</a></div>
+</header>
+<main>
+<section class="page-head"><span class="eyebrow">CONTACT</span><h1>تواصل معنا</h1><p>يسعدنا استقبال الاستفسارات والمقترحات والشراكات.</p></section>
+<section class="content-grid">
+<div class="info-card"><div class="icon">✦</div><h2>فاب لاب الأحساء</h2><p>مساحة عملية للابتكار والتصميم والتصنيع الرقمي.</p></div>
+<div class="info-card"><div class="icon">◉</div><h2>واتساب</h2><p>للتواصل السريع والاستفسارات:</p><p><a class="btn primary" href="https://wa.me/966566552942" target="_blank" rel="noopener noreferrer">واتساب · 0566552942</a></p></div>
+</section>
+<section class="form-card" style="margin-top:24px"><form id="contactForm"><div class="form-row"><label>الاسم<input name="name" required></label><label>البريد الإلكتروني<input name="email" type="email" required></label></div><label>رقم الجوال<input name="phone"></label><label>رسالتك<textarea name="message" required></textarea></label><button class="btn primary">إرسال الرسالة</button></form></section>
+</main>
+<footer class="site-footer"><span>© 2026 Fablab Al-Ahsa</span><span>تصميم وتطوير الموقع: محمد الرمضان</span><a href="contact.html">تواصل معنا</a></footer>
+<script>
+document.getElementById('contactForm').addEventListener('submit',function(e){e.preventDefault();alert('تم إرسال الرسالة.');this.reset()});
+</script>
+</body>
+</html>
