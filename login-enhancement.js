@@ -9,18 +9,19 @@ window.addEventListener('load',function(){
     if(typeof loadDB!=='function'||typeof toast!=='function')return;
     var db=loadDB();
     var account=db.users.find(function(u){return String(u.email||'').toLowerCase()===email;});
+    e.preventDefault();
+    e.stopImmediatePropagation();
     if(!account){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      toast('ما عندك حساب؟ أنشئ حساب طالب أولًا.','error');
+      toast('هذا البريد الإلكتروني غير مسجل. أنشئ حساب طالب أولًا.','error');
       if(emailInput)emailInput.focus();
       return;
     }
     if(account.password!==password||!account.active){
-      e.preventDefault();
-      e.stopImmediatePropagation();
       toast('البريد الإلكتروني أو كلمة المرور غير صحيحة.','error');
       if(passwordInput)passwordInput.focus();
+      return;
     }
+    setSession(account);
+    location.href='portal.html';
   },true);
 });
