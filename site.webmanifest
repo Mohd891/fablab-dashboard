@@ -7,8 +7,8 @@
   "theme_color": "#ffffff",
   "icons": [
     {
-      "src": "assets/apple-touch-icon.png",
-      "sizes": "180x180",
+      "src": "assets/fablab-logo-header.svg.png",
+      "sizes": "456x456",
       "type": "image/png",
       "purpose": "any"
     }
