@@ -1,6 +1,6 @@
 {
-  "name": "فاب لاب الأحساء",
-  "short_name": "فاب لاب الأحساء",
+  "name": "فاب لاب",
+  "short_name": "فاب لاب",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
