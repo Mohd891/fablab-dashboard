@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>تواصل معنا | فاب لاب الأحساء</title>
 <link rel="stylesheet" href="assets/style.css">
-<link rel="icon" type="image/svg+xml" href="assets/fablab-logo-header.svg">
+<link rel="icon" type="image/svg+xml" href="assets/fablab-app-icon.svg">
+<link rel="apple-touch-icon" href="assets/fablab-app-icon.svg">
+<link rel="manifest" href="site.webmanifest">
 <style>.whatsapp-icon{width:42px;height:42px;display:block}.whatsapp-box-icon{width:88px;height:88px;border-radius:18px;background:#eafaf0;display:grid;place-items:center;margin-bottom:15px}.contact-honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;opacity:0}</style>
 </head>
 <body>
@@ -38,7 +40,6 @@ const submitBtn=document.getElementById('contactSubmit');
 const statusEl=document.getElementById('contactStatus');
 const cooldownKey='fablab_contact_last_submit';
 const cooldownMs=20000;
-
 form.addEventListener('submit',async function(e){
  e.preventDefault();
  const data=Object.fromEntries(new FormData(form).entries());
