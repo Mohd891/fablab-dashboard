@@ -25,9 +25,26 @@
 <div class="info-card"><div class="icon">✦</div><h2>فاب لاب الأحساء</h2><p>مساحة عملية للابتكار والتصميم والتصنيع الرقمي.</p></div>
 <div class="info-card"><div class="whatsapp-box-icon"><svg class="whatsapp-icon" viewBox="0 0 32 32" aria-label="WhatsApp" role="img"><circle cx="16" cy="16" r="15" fill="#25D366"/><path fill="#fff" d="M23.2 8.8A10.2 10.2 0 0 0 7.4 21.1L6 26l5-1.3a10.2 10.2 0 0 0 12.2-15.9Zm-7.2 15.8c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3a7.9 7.9 0 1 1 7.1 3.8Zm4.3-5.9c-.2-.1-1.2-.6-1.4-.7-.2-.1-.3-.1-.5.1l-.7.9c-.1.1-.3.2-.5.1a6.4 6.4 0 0 1-3.2-2.8c-.1-.2 0-.3.1-.4l.4-.5c.1-.1.1-.2.2-.4 0-.1 0-.3 0-.4l-.7-1.7c-.2-.5-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.7-.8 1.8s.8 2.1.9 2.3c.1.1 1.5 2.4 3.7 3.3.5.2.9.3 1.2.4.5.2 1 .1 1.4.1.4-.1 1.2-.5 1.4-1 .2-.5.2-.9.2-1s-.2-.2-.4-.3Z"/></svg></div><h2>واتساب</h2><p>للتواصل السريع والاستفسارات:</p><p><a class="btn primary" href="https://wa.me/966566552942" target="_blank" rel="noopener noreferrer">واتساب · 0566552942</a></p></div>
 </section>
-<section class="form-card" style="margin-top:24px"><form id="contactForm"><div class="form-row"><label>الاسم<input name="name" required></label><label>البريد الإلكتروني<input name="email" type="email" required></label></div><label>رقم الجوال<input name="phone"></label><label>رسالتك<textarea name="message" required></textarea></label><button class="btn primary">إرسال الرسالة</button></form></section>
+<section class="form-card" style="margin-top:24px"><form id="contactForm"><div class="form-row"><label>الاسم<input name="name" required maxlength="100"></label><label>البريد الإلكتروني<input name="email" type="email" required maxlength="200"></label></div><label>رقم الجوال<input name="phone" maxlength="30"></label><label>رسالتك<textarea name="message" required maxlength="5000"></textarea></label><button id="contactSubmit" class="btn primary" type="submit">إرسال الرسالة</button><p id="contactStatus" class="hint" style="margin-top:12px"></p></form></section>
 </main>
 <footer class="site-footer"><span>© 2026 Fablab Al-Ahsa</span><span>تصميم وتطوير الموقع: محمد الرمضان</span><a href="contact.html">تواصل معنا</a></footer>
-<script>document.getElementById('contactForm').addEventListener('submit',function(e){e.preventDefault();alert('تم إرسال الرسالة.');this.reset()});</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://nwlqroyagrfuzfrtikln.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_AqI5cuM8pFcrc2UsiC-1zA_Sullikq7';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const form=document.getElementById('contactForm');
+const submitBtn=document.getElementById('contactSubmit');
+const statusEl=document.getElementById('contactStatus');
+form.addEventListener('submit',async function(e){
+ e.preventDefault();
+ submitBtn.disabled=true; submitBtn.textContent='جاري إرسال الرسالة...'; statusEl.textContent='';
+ const data=Object.fromEntries(new FormData(form).entries());
+ const {error}=await sb.from('contact_messages').insert({name:data.name.trim(),email:data.email.trim(),phone:data.phone.trim(),message:data.message.trim()});
+ if(error){console.error('Contact message error:',error);statusEl.textContent='تعذر إرسال الرسالة. حاول مرة أخرى.';submitBtn.disabled=false;submitBtn.textContent='إرسال الرسالة';return;}
+ statusEl.textContent='تم إرسال رسالتك بنجاح ✓'; form.reset(); submitBtn.disabled=false; submitBtn.textContent='إرسال الرسالة';
+ setTimeout(()=>{statusEl.textContent=''},4000);
+});
+</script>
 </body>
 </html>
