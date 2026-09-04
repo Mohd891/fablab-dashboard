@@ -7,10 +7,10 @@
   "theme_color": "#ffffff",
   "icons": [
     {
-      "src": "assets/fablab-app-icon.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "assets/fablab-logo-header.svg.png",
+      "sizes": "456x459",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
