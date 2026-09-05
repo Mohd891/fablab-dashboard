@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded',function(){
     <article class="about-block mission-block">
       <span class="about-number">02</span>
       <div>
-        <span class="eyebrow">الرسالة</span>
         <h2>الرسالة</h2>
         <p>نشر ثقافة الإبداع والاختراع ومساعدة المجتمع في تحويل أفكارهم إلى منتجات عبر أحدث تقنيات التصنيع الرقمي المتواجدة في الفاب لاب.</p>
       </div>
@@ -28,14 +27,13 @@ document.addEventListener('DOMContentLoaded',function(){
     <article class="about-block vision-block">
       <span class="about-number">03</span>
       <div>
-        <span class="eyebrow">الرؤية</span>
         <h2>الرؤية</h2>
         <p>أن نكون أفضل مصنع رقمي متميز حول العالم يساهم في تنمية الإبداع والابتكار.</p>
       </div>
     </article>
 
     <section class="about-values">
-      <div class="about-section-title"><span class="eyebrow">قيمنا ومحاورنا</span><h2>ما نؤمن به</h2></div>
+      <div class="about-section-title"><h2>قيمنا ومحاورنا</h2></div>
       <div class="about-values-grid">
         <article><div class="value-icon">💡</div><h3>الإبداع اللامحدود</h3><p>نوفر البيئة والأدوات التي تساعد على تحويل الأفكار الإبداعية إلى تجارب ومشاريع حقيقية.</p></article>
         <article><div class="value-icon">📘</div><h3>التعليم المستمر</h3><p>نؤمن بالتعلم بالممارسة وتطوير المهارات باستمرار في مجالات التقنية والتصنيع الرقمي.</p></article>
@@ -44,7 +42,6 @@ document.addEventListener('DOMContentLoaded',function(){
     </section>
   </section>`;
   const nav=typeof publicNav==='function'?publicNav('about'):'';
-  const footer=typeof shell==='function'?null:'';
   document.body.innerHTML=nav+'<main>'+content+'</main><footer class="site-footer"><span>© 2026 Fablab Al-Ahsa</span><span>تصميم وتطوير الموقع: محمد الرمضان</span><a href="contact.html">تواصل معنا</a></footer><div id="toast" class="toast"></div>';
   document.title='فاب لاب';
 
