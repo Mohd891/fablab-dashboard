@@ -1,1 +1,11 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>فاب لاب</title><link rel="icon" type="image/png" href="assets/fablab-logo-header.svg.png"><link rel="apple-touch-icon" sizes="180x180" href="assets/fablab-logo-header.svg.png"><link rel="apple-touch-icon-precomposed" href="assets/fablab-logo-header.svg.png"><link rel="manifest" href="site.webmanifest"><link rel="stylesheet" href="assets/style.css"></head><body data-page="admin"><script src="app.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-integration.js"></script><script>document.title='فاب لاب';</script><script src="title-fix.js"></script></body></html>
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>فاب لاب</title><link rel="icon" type="image/png" href="assets/fablab-logo-header.svg.png"><link rel="apple-touch-icon" sizes="180x180" href="assets/fablab-logo-header.svg.png"><link rel="apple-touch-icon-precomposed" href="assets/fablab-logo-header.svg.png"><link rel="manifest" href="site.webmanifest"><link rel="stylesheet" href="assets/style.css"></head><body data-page="admin"><script src="app.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-integration.js"></script><script>document.title='فاب لاب';</script><script src="title-fix.js"></script><script>
+(function(){
+  function addAIQuestionsLink(){
+    if(document.getElementById('aiQuestionsShortcut'))return;
+    if(document.body.dataset.page!=='admin')return;
+    var a=document.createElement('a');a.id='aiQuestionsShortcut';a.href='ai-questions.html';a.textContent='💬 أسئلة المساعد';a.style.cssText='position:fixed;left:22px;bottom:22px;z-index:9999;background:#2865df;color:#fff;text-decoration:none;border-radius:999px;padding:12px 17px;font-weight:800;box-shadow:0 10px 25px #17233a2b';document.body.appendChild(a);
+  }
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(addAIQuestionsLink,300);});
+  window.addEventListener('load',function(){setTimeout(addAIQuestionsLink,300);});
+})();
+</script></body></html>
