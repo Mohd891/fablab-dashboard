@@ -42,24 +42,22 @@
       if(dbNow.users.some(u=>u.email.toLowerCase()===email)){toast('البريد الإلكتروني مستخدم مسبقًا. جرّب تسجيل الدخول بدل إنشاء حساب جديد.','error');return;}
       if(dbNow.students.some(s=>normalizePhone(s.phone)===phone)){toast('رقم الجوال مسجل من قبل. جرّب تسجيل الدخول بدل إنشاء حساب جديد.','error');return;}
 
-      const {data:existingPhoneRows,error:phoneLookupError}=await sb.from('registrations').select('id').eq('phone',phone).limit(1);
-      if(phoneLookupError){console.error(phoneLookupError);toast('تعذر التحقق من رقم الجوال حاليًا. حاول مرة أخرى.','error');return;}
-      if(existingPhoneRows&&existingPhoneRows.length){toast('رقم الجوال مسجل من قبل. جرّب تسجيل الدخول بدل إنشاء حساب جديد.','error');return;}
-
-      const {data:existingEmailRows,error:emailLookupError}=await sb.from('registrations').select('id').eq('email',email).limit(1);
-      if(emailLookupError){console.error(emailLookupError);toast('تعذر التحقق من البريد الإلكتروني حاليًا. حاول مرة أخرى.','error');return;}
-      if(existingEmailRows&&existingEmailRows.length){toast('البريد الإلكتروني مسجل من قبل. جرّب تسجيل الدخول بدل إنشاء حساب جديد.','error');return;}
-
-      const {error:cloudError}=await sb.from('registrations').insert({full_name:name,phone,email,age,gender,program:''});
-      if(cloudError){console.error(cloudError);toast(cloudError.code==='23505'?'بيانات التسجيل مستخدمة من قبل. جرّب تسجيل الدخول بدل إنشاء حساب جديد.':'تعذر حفظ التسجيل على قاعدة البيانات','error');return;}
+      const {data:registration,error:cloudError}=await sb.rpc('create_student_registration',{p_full_name:name,p_phone:phone,p_email:email,p_age:age,p_gender:gender,p_program:''});
+      if(cloudError){
+        console.error(cloudError);
+        const code=String(cloudError.message||'');
+        if(code.includes('PHONE_EXISTS')){toast('رقم الجوال مسجل من قبل. جرّب تسجيل الدخول بدل إنشاء حساب جديد.','error');return;}
+        if(code.includes('EMAIL_EXISTS')){toast('البريد الإلكتروني مسجل من قبل. جرّب تسجيل الدخول بدل إنشاء حساب جديد.','error');return;}
+        toast('تعذر إنشاء الحساب حاليًا. حاول مرة أخرى.','error');
+        return;
+      }
 
       const uid=Date.now(),studentId=uid+1;
       dbNow.users.push({id:uid,name,email,password,role:'student',active:true});
-      dbNow.students.push({id:studentId,userId:uid,name,phone,age,gender,createdAt:new Date().toISOString()});
+      dbNow.students.push({id:studentId,userId:uid,name,phone,age,gender,createdAt:new Date().toISOString(),cloudRegistrationId:registration?.id||null});
       logActivity(dbNow,'إنشاء حساب طالب',name,'');
       setSession(dbNow.users[dbNow.users.length-1]);
-      toast('تم إنشاء الحساب وحفظ التسجيل بنجاح');
-      setTimeout(()=>location.href='portal.html',500);
+      location.href='portal.html';
     });
   };
 
