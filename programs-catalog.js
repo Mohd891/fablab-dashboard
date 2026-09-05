@@ -20,7 +20,7 @@
       const ordered=order(programs);
       const grid=document.querySelector('.program-grid');
       if(grid){
-        const active=ordered.filter(p=>state(p)!=='finished').slice(0,4),shown=active.length?active:ordered.slice(0,4);
+        const shown=ordered.slice(0,4);
         grid.innerHTML=shown.map(p=>card(p,'home')).join('');
         if(!document.querySelector('.program-more-wrap')){const more=document.createElement('div');more.className='program-more-wrap';more.innerHTML='<a class="btn primary large program-more" href="programs.html">اكتشف المزيد من البرامج ←</a>';grid.parentNode.insertBefore(more,grid.nextSibling)}
       }
