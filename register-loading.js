@@ -17,12 +17,10 @@
     }
     function hide(){
       if(overlay){overlay.remove();overlay=null}
+      document.body.classList.remove('register-loading-active');
       if(button)button.disabled=false;
     }
-    function show(){
-      ensureOverlay();
-      if(button)button.disabled=true;
-    }
+    function show(){ensureOverlay();document.body.classList.add('register-loading-active');if(button)button.disabled=true}
     const style=document.createElement('style');
     style.textContent='.register-loading-overlay{position:fixed;inset:0;z-index:100000;background:rgba(15,31,55,.28);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;padding:20px}.register-loading-box{min-width:240px;max-width:90vw;background:#fff;border:1px solid #e2e8f0;border-radius:20px;box-shadow:0 20px 60px rgba(15,31,55,.18);padding:28px 30px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:9px;color:#14213d}.register-loading-box strong{font-size:19px}.register-loading-box small{font-size:13px;color:#718096}.register-loading-spinner{width:34px;height:34px;border:4px solid #dbe7ff;border-top-color:#2f6be5;border-radius:50%;animation:registerLoadingSpin .8s linear infinite}@keyframes registerLoadingSpin{to{transform:rotate(360deg)}}body.register-loading-active{overflow:hidden}';
     document.head.appendChild(style);
@@ -30,17 +28,13 @@
       if(e.target!==form)return;
       setTimeout(function(){
         const invalid=form.querySelector('[aria-invalid="true"]');
-        if(!invalid&&form.checkValidity()){
-          show();
-          document.body.classList.add('register-loading-active');
-        }
+        if(!invalid&&form.checkValidity())show();
       },0);
     },true);
     const originalToast=window.toast;
     if(typeof originalToast==='function'){
-      window.toast=function(){
-        hide();
-        document.body.classList.remove('register-loading-active');
+      window.toast=function(msg,type='ok'){
+        if(type==='error')hide();
         return originalToast.apply(this,arguments);
       };
     }
