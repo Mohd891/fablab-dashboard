@@ -3,7 +3,8 @@
   function loadAssistant(){
     if(document.getElementById('fablab-ai-chat-script')) return;
     var path=(location.pathname||'').toLowerCase();
-    if(/^\/(admin(?:-[^/]+)?|employee(?:-[^/]+)?|student(?:-[^/]+)?|portal)(\.html)?$/.test(path.replace(/^.*\/([^/]+)$/,'/$1'))) return;
+    var file=path.split('/').pop() || 'index.html';
+    if(file !== 'index.html' && file !== '') return;
     var script=document.createElement('script');
     script.id='fablab-ai-chat-script';
     script.src='ai-chat.js?v=20260905';
