@@ -8,7 +8,14 @@
   function localToday(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
   function getStudent(){try{const u=typeof user==='function'?user():null,db=typeof loadDB==='function'?loadDB():null,s=u&&db?.students?.find(x=>x.userId===u.id);return u&&s?{name:s.name||u.name,email:u.email,phone:s.phone||''}:null}catch(_){return null}}
   function inject(){
+    // app.js renders/rewrites the portal on DOMContentLoaded, so this runs only after that render.
     if(document.getElementById('studentBookingCard'))return;
+    const side=document.querySelector('#portalSide, .portal-side, aside');
+    if(side && !side.querySelector('[data-student-booking-link]')){
+      const link=document.createElement('a');link.href='#studentBookingCard';link.textContent='حجز موعد';link.dataset.studentBookingLink='1';
+      link.style.cursor='pointer';side.appendChild(link);
+      link.addEventListener('click',e=>{e.preventDefault();document.getElementById('studentBookingCard')?.scrollIntoView({behavior:'smooth',block:'start'})});
+    }
     const host=document.querySelector('main')||document.body,style=document.createElement('style');
     style.textContent=`#studentBookingCard{margin:24px auto;max-width:1100px;background:#fff;border:1px solid #e6ebf2;border-radius:20px;padding:22px;box-shadow:0 10px 30px rgba(19,32,51,.07)}#studentBookingCard h2{margin:0 0 6px}.sb-muted{color:#718096}.sb-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}.sb-form label{display:flex;flex-direction:column;gap:6px;font-weight:700}.sb-form input,.sb-form select,.sb-form textarea{font:inherit;border:1px solid #d8e0ea;border-radius:10px;padding:11px;background:#fff}.sb-form textarea{min-height:80px}.sb-full{grid-column:1/-1}.sb-msg{margin-top:10px;font-weight:700}.sb-table{width:100%;border-collapse:collapse;margin-top:16px;min-width:700px}.sb-table th,.sb-table td{padding:10px;border-bottom:1px solid #edf0f4;text-align:right}.sb-scroll{overflow-x:auto}.sb-badge{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}.sb-pending{background:#fff7df;color:#8a5b00}.sb-approved{background:#e8f7ee;color:#137a42}.sb-rejected{background:#fff0f0;color:#b42318}@media(max-width:700px){.sb-form{grid-template-columns:1fr}.sb-full{grid-column:auto}#studentBookingCard{margin:18px 10px;padding:16px}}`;
     document.head.appendChild(style);
@@ -40,5 +47,5 @@
     form.reset();form.querySelector('[name="date"]').min=localToday();msg.textContent='تم إرسال طلب الحجز بنجاح. بانتظار موافقة الإدارة.';msg.style.color='#137a42';btn.disabled=false;loadBookings()
   }
   async function loadBookings(){const student=getStudent(),el=document.getElementById('studentBookingsList');if(!student||!el)return;const {data,error}=await sb.rpc('get_student_appointments',{p_email:student.email,p_phone:student.phone});if(error){el.innerHTML='<p class="sb-muted">تعذر تحميل حالة الحجوزات حاليًا.</p>';return}if(!data?.length){el.innerHTML='<div style="margin-top:18px" class="sb-muted">لا توجد حجوزات حتى الآن.</div>';return}const label=s=>s==='approved'?'تمت الموافقة':s==='rejected'?'تم الرفض':'بانتظار المراجعة',cls=s=>s==='approved'?'sb-approved':s==='rejected'?'sb-rejected':'sb-pending';el.innerHTML=`<h3 style="margin:24px 0 8px">حجوزاتي</h3><div class="sb-scroll"><table class="sb-table"><thead><tr><th>القسم</th><th>التاريخ</th><th>الوقت</th><th>الحالة</th><th>ملاحظة الإدارة</th></tr></thead><tbody>${data.map(a=>`<tr><td>${esc(a.department)}</td><td>${esc(a.appointment_date)}</td><td>${esc(String(a.appointment_time||'').slice(0,5))}</td><td><span class="sb-badge ${cls(a.status)}">${label(a.status)}</span></td><td>${esc(a.admin_note||'—')}</td></tr>`).join('')}</tbody></table></div>`}
-  init()
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else setTimeout(init,0)
 })();
