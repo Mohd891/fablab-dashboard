@@ -16,9 +16,7 @@
   const originalAdmin = window.renderAdmin;
 
   window.renderRegister = function(){
-    const db = loadDB();
-    const opts = db.programs.filter(p=>p.status==='active').map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
-    write(`<div class="auth-wrap"><div class="auth-card wide"><a class="brand center" href="index.html"><img src="assets/fablab-logo.png" alt="Fablab"><span>فاب لاب الأحساء</span></a><h1>إنشاء حساب طالب</h1><p class="muted">سجل بنفسك وادخل إلى بوابتك الشخصية.</p><form id="registerForm"><div class="form-row"><label>الاسم الكامل<input name="name" required></label><label>رقم الجوال<input name="phone" required></label></div><div class="form-row"><label>البريد الإلكتروني<input type="email" name="email" required></label><label>العمر<input type="number" name="age" min="7" max="80" required></label></div><div class="form-row"><label>الجنس<select name="gender" required><option value="">اختر</option><option>ذكر</option><option>أنثى</option></select></label><label>البرنامج<select name="program" required><option value="">اختر البرنامج</option>${opts}</select></label></div><label>كلمة المرور<input type="password" name="password" minlength="6" required></label><button class="btn primary full">إنشاء الحساب</button></form><div class="auth-links"><a href="login.html">لديك حساب؟ تسجيل الدخول</a><a href="index.html">العودة للموقع</a></div></div></div>`);
+    write(`<div class="auth-wrap"><div class="auth-card wide"><a class="brand center" href="index.html"><img src="assets/fablab-logo.png" alt="Fablab"><span>فاب لاب الأحساء</span></a><h1>إنشاء حساب طالب</h1><p class="muted">سجل بنفسك وادخل إلى بوابتك الشخصية.</p><form id="registerForm"><div class="form-row"><label>الاسم الكامل<input name="name" required></label><label>رقم الجوال<input name="phone" required></label></div><div class="form-row"><label>البريد الإلكتروني<input type="email" name="email" required></label><label>العمر<input type="number" name="age" min="7" max="80" required></label></div><label>الجنس<select name="gender" required><option value="">اختر</option><option>ذكر</option><option>أنثى</option></select></label><label>كلمة المرور<input type="password" name="password" minlength="6" required></label><button class="btn primary full">إنشاء الحساب</button></form><div class="auth-links"><a href="login.html">لديك حساب؟ تسجيل الدخول</a><a href="index.html">العودة للموقع</a></div></div></div>`);
 
     document.getElementById('registerForm').addEventListener('submit',async e=>{
       e.preventDefault();
@@ -29,16 +27,10 @@
       const email = String(fd.get('email')).trim().toLowerCase();
       const age = Number(fd.get('age'));
       const gender = String(fd.get('gender'));
-      const programId = Number(fd.get('program'));
       const password = String(fd.get('password'));
-      const program = dbNow.programs.find(p=>p.id===programId);
 
       if(dbNow.users.some(u=>u.email.toLowerCase()===email)){
         toast('البريد الإلكتروني مستخدم مسبقًا','error'); return;
-      }
-      const used = dbNow.students.filter(s=>s.programId===programId).length;
-      if(program && used>=program.max){
-        toast('البرنامج مكتمل حاليًا','error'); return;
       }
 
       const {error: cloudError} = await sb.from('registrations').insert({
@@ -47,7 +39,7 @@
         email,
         age,
         gender,
-        program:program?.name || ''
+        program:''
       });
 
       if(cloudError){
@@ -58,8 +50,8 @@
 
       const uid=Date.now(), studentId=uid+1;
       dbNow.users.push({id:uid,name,email,password,role:'student',active:true});
-      dbNow.students.push({id:studentId,userId:uid,name,phone,age,gender,programId,createdAt:new Date().toISOString()});
-      logActivity(dbNow,'إنشاء حساب طالب',name,program?.name||'');
+      dbNow.students.push({id:studentId,userId:uid,name,phone,age,gender,createdAt:new Date().toISOString()});
+      logActivity(dbNow,'إنشاء حساب طالب',name,'');
       setSession(dbNow.users[dbNow.users.length-1]);
       toast('تم إنشاء الحساب وحفظ التسجيل بنجاح');
       setTimeout(()=>location.href='portal.html',500);
@@ -135,7 +127,7 @@
 
       const db=loadDB();
       const u=db.users.find(x=>x.email.toLowerCase()===email&&x.password===password&&x.active);
-      if(!u){toast('البريد أو كلمة المرور غير صحيحة','error');return;}
+      if(!u){toast('البريد أو كلمة المرور غير صحيحة','error');return}
       setSession(u);location.href='portal.html';
     });
   };
