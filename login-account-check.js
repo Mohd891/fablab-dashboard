@@ -39,7 +39,7 @@
         const fd=new FormData(form),email=String(fd.get('email')||'').trim().toLowerCase();
         const db=loadDB(),staff=db.users.find(u=>String(u.email||'').toLowerCase()===email&&(u.role==='employee'||u.role==='admin'));
         if(staff&&staff.active&&staff.password===''){
-          e.preventDefault();e.stopImmediatePropagation();setSession(staff);location.href='employee-settings.html?firstLogin=1';return;
+          e.preventDefault();e.stopImmediatePropagation();setSession(staff);location.href=staff.role==='admin'?'admin-settings.html?firstLogin=1':'employee-settings.html?firstLogin=1';return;
         }
         const exists=(db.users||[]).some(u=>String(u.email||'').trim().toLowerCase()===email);
         if(!exists&&email!=='admin@fablab.local'){
