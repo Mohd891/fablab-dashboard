@@ -1,0 +1,16 @@
+/* Employee portal mobile sidebar visibility fix */
+@media (max-width:1050px){
+  .portal-side{width:180px!important;padding:18px 10px!important;overflow-y:auto!important;overflow-x:hidden!important}
+  .portal-side .brand span:not(.brand-dot){font-size:inherit!important}
+  .portal-side nav{display:grid!important;gap:5px!important}
+  .portal-side .side-link{font-size:12px!important;white-space:normal!important;line-height:1.5!important;display:block!important;text-align:right!important}
+  .portal-main{margin-right:180px!important}
+}
+@media (max-width:650px){
+  .portal-side{width:155px!important;padding:14px 8px!important}
+  .portal-main{margin-right:155px!important;padding:16px 12px!important}
+  .portal-side .brand{padding:5px 6px 16px!important}
+  .portal-side .brand img{width:34px!important;height:34px!important}
+  .portal-side .brand span{font-size:11px!important}
+  .portal-side .side-link{font-size:10px!important;padding:10px 8px!important}
+}
