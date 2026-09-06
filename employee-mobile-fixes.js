@@ -1,0 +1,104 @@
+(function(){
+  const PAGE='employee';
+  const AR_MONTHS=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  const AR_DAYS=['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'];
+
+  function db(){
+    try{return JSON.parse(localStorage.getItem('fablab_demo_v1')||'{}')}catch{return {}}
+  }
+  function pad(n){return String(n).padStart(2,'0')}
+  function isoDate(y,m,d){return `${y}-${pad(m+1)}-${pad(d)}`}
+  function dayIndex(y,m,d){return new Date(y,m,d).getDay()}
+  function programsForYear(y){
+    const list=Array.isArray(db().programs)?db().programs:[];
+    return list.filter(p=>{
+      if(!p.starts_at&&!p.ends_at)return false;
+      const s=p.starts_at||p.ends_at,e=p.ends_at||p.starts_at;
+      return String(s).slice(0,4)<=String(y)&&String(e).slice(0,4)>=String(y);
+    })
+  }
+  function monthHtml(y,m,programs){
+    const first=dayIndex(y,m,1), days=new Date(y,m+1,0).getDate();
+    let cells='';
+    for(let i=0;i<first;i++)cells+='<span class="emp-cal-day is-empty"></span>';
+    for(let d=1;d<=days;d++){
+      const date=isoDate(y,m,d);
+      const today=new Date();
+      const isToday=today.getFullYear()===y&&today.getMonth()===m&&today.getDate()===d;
+      const weekend=[5,6].includes(dayIndex(y,m,d));
+      const events=programs.filter(p=>{
+        const s=p.starts_at||p.ends_at,e=p.ends_at||p.starts_at;
+        return s&&e&&date>=String(s).slice(0,10)&&date<=String(e).slice(0,10);
+      });
+      const title=events.map(p=>p.name||'برنامج').join(' • ');
+      cells+=`<button type="button" class="emp-cal-day${isToday?' is-today':''}${weekend?' is-weekend':''}${events.length?' has-event':''}" data-date="${date}" title="${title.replace(/"/g,'&quot;')}"><span>${d}</span>${events.length?'<i></i>':''}</button>`;
+    }
+    return `<section class="emp-cal-month"><div class="emp-cal-month-title">${AR_MONTHS[m]}</div><div class="emp-cal-week">${AR_DAYS.map(x=>`<span>${x}</span>`).join('')}</div><div class="emp-cal-grid">${cells}</div></section>`;
+  }
+  function calendarHtml(year){
+    const programs=programsForYear(year);
+    return `<section class="employee-calendar portal-card" id="employeeAnnualCalendar">
+      <div class="employee-calendar-head">
+        <div><span class="eyebrow">ANNUAL CALENDAR</span><h2>التقويم السنوي <b id="empCalYear">${year}</b></h2><p>عرض سريع لأيام السنة وبرامج الفاب لاب المسجلة.</p></div>
+        <div class="emp-cal-actions"><button type="button" id="empCalPrev" aria-label="السنة السابقة">‹</button><button type="button" id="empCalToday">هذه السنة</button><button type="button" id="empCalNext" aria-label="السنة التالية">›</button></div>
+      </div>
+      <div class="emp-cal-legend"><span><i class="today-dot"></i> اليوم</span><span><i class="event-dot"></i> يوجد برنامج</span><span><i class="weekend-dot"></i> نهاية الأسبوع</span></div>
+      <div class="emp-cal-year">${Array.from({length:12},(_,m)=>monthHtml(year,m,programs)).join('')}</div>
+    </section>`;
+  }
+  function bindCalendar(){
+    const root=document.getElementById('employeeAnnualCalendar');if(!root)return;
+    let year=new Date().getFullYear();
+    const render=()=>{
+      const old=root.outerHTML;
+      const tmp=document.createElement('div');tmp.innerHTML=calendarHtml(year);root.replaceWith(tmp.firstElementChild);bindCalendar();
+    };
+    document.getElementById('empCalPrev')?.addEventListener('click',()=>{year--;render()});
+    document.getElementById('empCalNext')?.addEventListener('click',()=>{year++;render()});
+    document.getElementById('empCalToday')?.addEventListener('click',()=>{year=new Date().getFullYear();render()});
+    root.querySelectorAll('.emp-cal-day.has-event').forEach(btn=>btn.addEventListener('click',()=>{
+      const list=programsForYear(year).filter(p=>{
+        const s=p.starts_at||p.ends_at,e=p.ends_at||p.starts_at,d=btn.dataset.date;
+        return s&&e&&d>=String(s).slice(0,10)&&d<=String(e).slice(0,10);
+      });
+      if(list.length&&typeof window.toast==='function')window.toast(list.map(p=>p.name).join(' • '));
+    }));
+  }
+  function style(){
+    if(document.getElementById('employeeMobileFixStyle'))return;
+    const s=document.createElement('style');s.id='employeeMobileFixStyle';s.textContent=`
+      .portal-main{box-sizing:border-box;min-width:0}
+      .employee-calendar{margin-top:18px;overflow:hidden}
+      .employee-calendar-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px}
+      .employee-calendar-head h2{margin:6px 0 4px;font-size:22px}
+      .employee-calendar-head p{margin:0;color:#7b8798;font-size:12px;line-height:1.7}
+      .emp-cal-actions{display:flex;gap:6px;flex-shrink:0}
+      .emp-cal-actions button{border:1px solid #dfe5ec;background:#fff;color:#27364a;border-radius:10px;min-width:40px;height:38px;padding:0 10px;font-weight:700;cursor:pointer}
+      .emp-cal-actions button:hover{background:#f5f8fc}
+      .emp-cal-legend{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0 18px;color:#697789;font-size:11px}
+      .emp-cal-legend span{display:inline-flex;align-items:center;gap:6px}
+      .emp-cal-legend i{display:inline-block;width:9px;height:9px;border-radius:50%;background:#dfe5ec}
+      .emp-cal-legend .today-dot{background:#2865df}.emp-cal-legend .event-dot{background:#19a974}.emp-cal-legend .weekend-dot{background:#f1b44c}
+      .emp-cal-year{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+      .emp-cal-month{border:1px solid #e5eaf1;border-radius:14px;padding:10px;background:#fff;min-width:0}
+      .emp-cal-month-title{font-weight:800;font-size:14px;margin-bottom:9px;text-align:center;color:#26364a}
+      .emp-cal-week,.emp-cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+      .emp-cal-week{margin-bottom:4px}.emp-cal-week span{text-align:center;font-size:8px;color:#9aa5b4;font-weight:700}
+      .emp-cal-day{position:relative;border:0;background:#f8fafc;border-radius:6px;min-width:0;aspect-ratio:1;padding:0;color:#445268;font-size:10px;cursor:pointer}
+      .emp-cal-day.is-empty{background:transparent;cursor:default}.emp-cal-day.is-weekend{background:#fff8eb}.emp-cal-day.is-today{background:#2865df;color:#fff;font-weight:800}.emp-cal-day.has-event:not(.is-today){box-shadow:inset 0 -2px 0 #19a974}.emp-cal-day i{position:absolute;width:4px;height:4px;border-radius:50%;background:#19a974;bottom:3px;left:50%;transform:translateX(-50%)}.emp-cal-day.is-today i{background:#fff}
+      @media(max-width:1100px){.emp-cal-year{grid-template-columns:repeat(3,minmax(0,1fr))}}
+      @media(max-width:800px){.portal-main{padding:14px 12px 28px!important}.portal-side nav{grid-template-columns:repeat(2,minmax(0,1fr))!important}.employee-calendar-head{align-items:flex-start;flex-direction:column}.emp-cal-year{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.emp-cal-month{padding:8px}.emp-cal-day{font-size:9px}}
+      @media(max-width:480px){.portal-top{flex-wrap:wrap}.portal-top h1{font-size:21px!important}.kpi-grid,.quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.employee-calendar{border-radius:14px}.employee-calendar-head h2{font-size:19px}.emp-cal-actions{width:100%}.emp-cal-actions button{flex:1}.emp-cal-year{grid-template-columns:1fr;gap:8px}.emp-cal-month{padding:10px}.emp-cal-day{font-size:11px}.emp-cal-week span{font-size:9px}.emp-cal-legend{gap:8px}}
+    `;document.head.appendChild(s)
+  }
+  function inject(){
+    if(document.body?.dataset.page!==PAGE)return;
+    style();
+    if(document.getElementById('employeeAnnualCalendar'))return;
+    const main=document.querySelector('.portal-main')||document.querySelector('main');if(!main)return;
+    const section=document.createElement('div');section.innerHTML=calendarHtml(new Date().getFullYear());main.appendChild(section.firstElementChild);bindCalendar();
+  }
+  function boot(){inject();setTimeout(inject,100);setTimeout(inject,500);setTimeout(inject,1200)}
+  document.addEventListener('DOMContentLoaded',boot);window.addEventListener('load',boot);
+  new MutationObserver(inject).observe(document.documentElement,{childList:true,subtree:true});
+})();
