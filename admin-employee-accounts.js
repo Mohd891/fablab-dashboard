@@ -6,7 +6,8 @@
   function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
   function current(){try{return JSON.parse(localStorage.getItem('fablab_session_v1')||'null')}catch{return null}}
   function init(){
-    if(document.body?.dataset?.page!=='admin-people')return;
+    const page=document.body?.dataset?.page||'';
+    if(page!=='admin'&&page!=='admin-people')return;
     const s=current(); if(!s || s.role!=='admin')return;
     const main=document.querySelector('.portal-main')||document.querySelector('main'); if(!main || document.getElementById('employeeAccountManager'))return;
     const wrap=document.createElement('section'); wrap.className='portal-card'; wrap.id='employeeAccountManager';
