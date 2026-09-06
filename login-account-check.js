@@ -36,11 +36,10 @@
       const form=document.getElementById('loginForm');
       if(!form)return;
       form.addEventListener('submit',function(e){
-        const fd=new FormData(form),email=String(fd.get('email')||'').trim().toLowerCase(),password=String(fd.get('password')||'');
-        const db=loadDB(),staff=db.users.find(u=>String(u.email||'').toLowerCase()===email&&u.role==='employee');
+        const fd=new FormData(form),email=String(fd.get('email')||'').trim().toLowerCase();
+        const db=loadDB(),staff=db.users.find(u=>String(u.email||'').toLowerCase()===email&&(u.role==='employee'||u.role==='admin'));
         if(staff&&staff.active&&staff.password===''){
-          e.preventDefault();e.stopImmediatePropagation();
-          setSession(staff);location.href='employee-settings.html?firstLogin=1';return;
+          e.preventDefault();e.stopImmediatePropagation();setSession(staff);location.href='employee-settings.html?firstLogin=1';return;
         }
         const exists=(db.users||[]).some(u=>String(u.email||'').trim().toLowerCase()===email);
         if(!exists&&email!=='admin@fablab.local'){
