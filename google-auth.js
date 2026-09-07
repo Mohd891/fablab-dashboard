@@ -1,0 +1,41 @@
+(function(){
+  const SUPABASE_URL='https://nwlqroyagrfuzfrtikln.supabase.co';
+  const SUPABASE_KEY='sb_publishable_AqI5cuM8pFcrc2UsiC-1zA_Sullikq7';
+  let client=null;
+  function ready(){return window.supabase&&typeof window.supabase.createClient==='function'}
+  function getClient(){if(!client&&ready())client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);return client}
+  function addStyles(){if(document.getElementById('google-auth-style'))return;const s=document.createElement('style');s.id='google-auth-style';s.textContent='.google-auth-wrap{margin-top:16px}.google-auth-divider{display:flex;align-items:center;gap:10px;color:#98a2b3;font-size:12px;margin:14px 0}.google-auth-divider:before,.google-auth-divider:after{content:"";height:1px;background:#e5e7eb;flex:1}.google-auth-btn{width:100%;min-height:48px;border:1px solid #d8dee8;background:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:10px;color:#1f2937;font:700 14px inherit;cursor:pointer;box-shadow:0 3px 10px rgba(16,24,40,.05);transition:.2s}.google-auth-btn:hover{transform:translateY(-1px);box-shadow:0 7px 18px rgba(16,24,40,.09)}.google-auth-btn:disabled{opacity:.65;cursor:wait}.google-g{font:800 20px Arial;color:#4285f4}.google-auth-note{font-size:11px;color:#98a2b3;text-align:center;margin-top:8px;line-height:1.6}';document.head.appendChild(s)}
+  function isStudentPage(){return document.body&&['login','register'].includes(document.body.dataset.page)}
+  function findForm(){return document.querySelector('#loginForm,#registerForm,.auth-card form')}
+  function showError(msg){let box=document.getElementById('googleAuthError');if(!box){box=document.createElement('div');box.id='googleAuthError';box.style.cssText='margin-top:12px;color:#b42318;background:#fff1f0;border:1px solid #fecdca;border-radius:10px;padding:10px;text-align:center;font-size:12px';const wrap=document.querySelector('.google-auth-wrap');wrap?.appendChild(box)}box.textContent=msg}
+  function ensureLocalUser(session){
+    try{
+      if(typeof loadDB!=='function'||typeof saveDB!=='function'||typeof setSession!=='function')return;
+      const db=loadDB();db.users=db.users||[];db.students=db.students||[];
+      const email=String(session.user.email||'').trim().toLowerCase();
+      const name=String(session.user.user_metadata?.full_name||session.user.user_metadata?.name||email.split('@')[0]||'طالب').trim();
+      let u=db.users.find(x=>String(x.email||'').toLowerCase()===email);
+      if(!u){u={id:'google-'+session.user.id,name,email,password:'',role:'student',active:true,phone:'',provider:'google'};db.users.push(u)}else{u.name=name||u.name;u.provider=u.provider||'google';u.active=true}
+      if(!db.students.some(x=>String(x.email||'').toLowerCase()===email))db.students.push({id:u.id,name:u.name,email,phone:u.phone||'',createdAt:new Date().toISOString(),provider:'google'});
+      saveDB(db);setSession(u);
+    }catch(e){console.error('Google local sync failed',e)}
+  }
+  async function signInGoogle(btn){
+    const sb=getClient();
+    if(!sb){showError('تعذر تشغيل تسجيل الدخول بجوجل.');return}
+    btn.disabled=true;btn.innerHTML='<span class="google-g">G</span> جاري فتح Google...';
+    try{
+      const {data,error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname}});
+      if(error)throw error;
+      if(data?.url)location.href=data.url;
+    }catch(e){console.error(e);btn.disabled=false;btn.innerHTML='<span class="google-g">G</span> المتابعة باستخدام Google';showError('تسجيل الدخول بجوجل غير مفعّل حاليًا في النظام. يحتاج تفعيل Google في Supabase أولًا.')}
+  }
+  async function finishOAuth(){
+    const sb=getClient();if(!sb)return;
+    try{const {data}=await sb.auth.getSession();if(data?.session){ensureLocalUser(data.session);if(location.hash.includes('access_token')||location.search.includes('code'))location.replace('portal.html')}}catch(e){console.error(e)}
+  }
+  function inject(){if(!isStudentPage()||document.getElementById('googleAuthWrap'))return;const form=findForm();if(!form)return;addStyles();const wrap=document.createElement('div');wrap.id='googleAuthWrap';wrap.className='google-auth-wrap';wrap.innerHTML='<div class="google-auth-divider"><span>أو</span></div><button type="button" class="google-auth-btn" id="googleAuthBtn"><span class="google-g">G</span> المتابعة باستخدام Google</button><div class="google-auth-note">تقدر تستخدم Gmail أو تكمل بالطريقة العادية.</div>';form.insertAdjacentElement('afterend',wrap);wrap.querySelector('#googleAuthBtn').addEventListener('click',function(){signInGoogle(this)})}
+  function init(){inject();finishOAuth();setTimeout(inject,150);setTimeout(inject,700)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  new MutationObserver(inject).observe(document.documentElement,{childList:true,subtree:true});
+})();
