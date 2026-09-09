@@ -1,0 +1,1 @@
+(()=>{function bridge(){if(window.FABLAB_CERT_V3?.show){if(window.FABLAB_CERT_V2)window.FABLAB_CERT_V2.show=window.FABLAB_CERT_V3.show;if(window.FABLAB_CERT)window.FABLAB_CERT.show=window.FABLAB_CERT_V3.show;return}setTimeout(bridge,100)}bridge()})();
