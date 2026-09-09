@@ -1,5 +1,6 @@
-// Prevent the legacy app.js renderer from briefly drawing the old admin page.
-// The dedicated admin page script owns rendering for this route.
-if(document.body?.dataset.page==='admin'){
+// Stop the legacy app.js renderer on all dedicated admin routes.
+// Page-specific admin scripts render the actual interface.
+const adminRoute=document.body?.dataset?.page||'';
+if(adminRoute==='admin' || adminRoute.startsWith('admin-')){
   window.render=()=>{};
 }
