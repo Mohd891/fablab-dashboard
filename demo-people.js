@@ -24,5 +24,6 @@ window.FABLAB_DEMO_PEOPLE=[
 {id:'vol-23',name:'جنى المطيري',email:'jana.mutairi@example.com',phone:'0501234523',department:'التصنيع الرقمي',type:'متطوع',programs:['التصنيع الرقمي']},
 {id:'vol-24',name:'عبدالملك الناصر',email:'abdulmalik.nasser@example.com',phone:'0501234524',department:'التصنيع الرقمي',type:'متطوع',programs:['التصنيع الرقمي']},
 {id:'intern-01',name:'محمد الرمضان',email:'mohammed.ramadhan@kfu.edu.sa',phone:'0501234525',department:'الإدارة والمالية',type:'متدرب تعاوني',role:'مساعد إداري ومالي',university:'جامعة الملك فيصل',major:'نظم المعلومات الإدارية',programs:[]},
-{id:'intern-02',name:'نورة الحسن',email:'noura.alhassan@kfu.edu.sa',phone:'0501234526',department:'الروبوتات',type:'متدرب تعاوني',role:'متدربة في قسم الروبوتات',university:'جامعة الملك فيصل',major:'نظم المعلومات الإدارية',programs:['الروبوتات الذكية']}
+{id:'intern-02',name:'نورة الحسن',email:'noura.alhassan@kfu.edu.sa',phone:'0501234526',department:'الروبوتات',type:'متدرب تعاوني',role:'متدربة في قسم الروبوتات',university:'جامعة الملك فيصل',major:'نظم المعلومات الإدارية',programs:['الروبوتات الذكية']},
+{id:'trn-01',name:'محمد السلمان',email:'mohammed.alsalman@example.com',phone:'0501234527',department:'الروبوتات',type:'مدرب',programs:['الروبوتات الذكية','SPIKE Essential']}
 ];
