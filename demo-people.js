@@ -1,5 +1,5 @@
 window.FABLAB_DEMO_PEOPLE=[
-{id:'vol-01',name:'مريم التركي',email:'maryam.turki@example.com',phone:'0501234501',department:'الروبوتات',type:'متطوع',programs:['SPIKE Essential']},
+{id:'vol-01',name:'مريم التركي',email:'maryam.turki@example.com',phone:'0501234501',department:'الروبوتات',type:'متطوع',programs:['SPIKE Essential'],evaluation:5},
 {id:'vol-02',name:'عبدالله السالم',email:'abdullah.salem@example.com',phone:'0501234502',department:'الروبوتات',type:'متطوع',programs:['SPIKE Essential']},
 {id:'vol-03',name:'سارة العبدالله',email:'sarah.abdullah@example.com',phone:'0501234503',department:'التصنيع الرقمي',type:'متطوع',programs:['التصنيع الرقمي']},
 {id:'vol-04',name:'فيصل الحربي',email:'faisal.harbi@example.com',phone:'0501234504',department:'التصنيع الرقمي',type:'متطوع',programs:['التصنيع الرقمي']},
